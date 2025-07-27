@@ -21,11 +21,15 @@ public class UIManager : MonoBehaviour
     #endregion
 
     public PlayingPanle playingPanle;
+    public GridAnimation gridAnimation;
 
     public void Init()
     {
         playingPanle = GetComponentInChildren<PlayingPanle>();
         playingPanle.Init();
+
+        gridAnimation = GetComponentInChildren<GridAnimation>();
+        gridAnimation.Init();
     }
 
 }

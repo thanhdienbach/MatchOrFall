@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour
     public BoardManager boardManager;
     public GamePlayManager gamePlayManager;
 
-    
 
     void Start()
     {
@@ -32,14 +31,15 @@ public class GameManager : MonoBehaviour
     }
     void Init()
     {
-        gamePlayManager = GetComponentInChildren<GamePlayManager>();
-        gamePlayManager.Init();
-
+        boardManager = GetComponentInChildren<BoardManager>();
         uIManager = gameObject.GetComponentInChildren<UIManager>();
+        gamePlayManager = GetComponentInChildren<GamePlayManager>();
+
         uIManager.Init();
 
-        boardManager = GetComponentInChildren<BoardManager>();
         boardManager.Init();
+
+        gamePlayManager.Init();
     }
 
 }

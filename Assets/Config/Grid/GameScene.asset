@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40efb03e66837db4883307f15886c5ab, type: 3}
   m_Name: GameScene
   m_EditorClassIdentifier: 
-  cols: 9
-  startFilledCell: 32
+  cols: 6
+  startFilledCell: 36
   duplicateNumber: 5
   maxValueNumber: 9

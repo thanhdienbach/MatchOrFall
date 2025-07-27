@@ -9,7 +9,7 @@ public class BoardManager : MonoBehaviour
 {
 
     [Header("Component")]
-    [SerializeField] GridConfig gridConfig;
+    public GridConfig gridConfig;
     [SerializeField] GridLayoutGroup gridLayoutGroup;
 
     [Header("Gameobject")]
@@ -35,9 +35,6 @@ public class BoardManager : MonoBehaviour
         cols = gridConfig.cols;
         startFilledCell = gridConfig.startFilledCell;
         maxNumber = gridConfig.maxValueNumber;
-        
-
-        gridLayoutGroup = UIManager.instance.GetComponentInChildren<GridLayoutGroup>();
 
         SetUpLayOutGrid();
         GenerateGrid();
@@ -60,10 +57,11 @@ public class BoardManager : MonoBehaviour
     {
         for (int i = 0; i < (startFilledCell / cols + 4) * cols; i++)
         {
-            GameObject buttonObject = Instantiate(cellPrefabs, gridParent);
+            GameObject buttonObject = Instantiate(cellPrefabs, gridLayoutGroup.transform);
             Button button = buttonObject.GetComponent<Button>();
 
             Cell cell = new Cell(button);
+
             int cellPositionY;
             if ((i + 1) % cols == 0)
             {
@@ -73,8 +71,18 @@ public class BoardManager : MonoBehaviour
             {
                 cellPositionY = (i + 1) % cols;
             }
-            Vector2Int cellPosition = new Vector2Int((i + 1) / cols + 1, cellPositionY);
+            int cellPositionX;
+            if (cellPositionY == cols)
+            {
+                cellPositionX = (i + 1) / cols;
+            }
+            else
+            {
+                cellPositionX = (i + 1) / cols + 1;
+            }
+            Vector2Int cellPosition = new Vector2Int(cellPositionX, cellPositionY);
             cell.cellPosition = cellPosition;
+            cell.button.GetComponent<CellClickHandler>().cell = cell;
             cells.Add(cell);
         }
     }
@@ -84,11 +92,14 @@ public class BoardManager : MonoBehaviour
         {
             if (i < startFilledCell)
             {
+                cells[i].number = _numbers[i];
                 cells[i].button.GetComponentInChildren<TMP_Text>().text = _numbers[i].ToString();
             }
             else
             {
                 cells[i].button.GetComponentInChildren<TMP_Text>().text = "";
+                cells[i].button.interactable = false;
+                cells[i].button.GetComponentInChildren<Image>().color = Color.white;
             }
         }
     }
@@ -124,7 +135,7 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        // Shuffle(numbers);
+        Shuffle(numbers);
 
         return numbers;
     }
@@ -132,7 +143,7 @@ public class BoardManager : MonoBehaviour
     {
         for (int i = 0; i < _numbers.Count; i++)
         {
-            int randomIndex = Random.Range(0, _numbers.Count + 1);
+            int randomIndex = Random.Range(0, _numbers.Count);
             (_numbers[i], _numbers[randomIndex]) = (_numbers[randomIndex], _numbers[i]);
         }
     }
