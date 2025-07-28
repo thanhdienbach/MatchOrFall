@@ -18,7 +18,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] Transform gridParent;
 
     [Header("Grid size")]
-    [SerializeField] int cols;
+    public int cols;
     [SerializeField] int startFilledCell;
     [SerializeField] int maxNumber;
 
@@ -55,7 +55,16 @@ public class BoardManager : MonoBehaviour
     }
     void GenerateGrid()
     {
-        for (int i = 0; i < cols * 12; i++) // (startFilledCell / cols + 4) * cols
+        int rows;
+        if ((startFilledCell / cols) < 12)
+        {
+            rows = 12;
+        }
+        else
+        {
+            rows = startFilledCell / cols;
+        }
+        for (int i = 0; i < cols * rows; i++) // (startFilledCell / cols + 4) * cols
         {
             GameObject buttonObject = Instantiate(cellPrefabs, gridLayoutGroup.transform);
             Button button = buttonObject.GetComponent<Button>();

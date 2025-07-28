@@ -22,7 +22,6 @@ public class MyUILineRenderer : MonoBehaviour
     }
     public void DrawnLine(List<Cell> _matchedCells)
     {
-        Debug.Log("Drawn2");
         Vector2[] positions = new Vector2[_matchedCells.Count];
 
         for (int i = 0; i < _matchedCells.Count; i++)

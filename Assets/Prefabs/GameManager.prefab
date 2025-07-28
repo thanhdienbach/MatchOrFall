@@ -161,7 +161,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 752922854389349660}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -195,7 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8537736, g: 0.98329335, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -225,6 +225,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreText: {fileID: 425253785895083955}
+  hopeText: {fileID: 6196720063456774789}
+  hopeButton: {fileID: 7012351963675579025}
 --- !u!1 &1128461145712473044
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,9 +356,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 957798105982282424}
-  - {fileID: 335761941867626529}
-  - {fileID: 2304754772460178044}
   - {fileID: 8952051544074771520}
+  - {fileID: 2304754772460178044}
+  - {fileID: 335761941867626529}
   m_Father: {fileID: 5673375541201931122}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -373,7 +375,7 @@ Canvas:
   m_GameObject: {fileID: 2419049222224869235}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -573,7 +575,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000020254, y: 0.00012207031}
+  m_AnchoredPosition: {x: 0.000020254, y: -0.010191679}
   m_SizeDelta: {x: -0.000020254003, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6485743079977283976
@@ -648,7 +650,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 565}
+  m_AnchoredPosition: {x: 0, y: 698}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1705894776970141258
@@ -958,7 +960,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 223733743395770440}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7512058237901006846}
+        m_TargetAssemblyTypeName: GamePlayManager, Assembly-CSharp
+        m_MethodName: HopeButtonClickEvent
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6667520537446171342
 GameObject:
   m_ObjectHideFlags: 0
@@ -998,7 +1012,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.000022888184, y: -0.000015258789}
-  m_SizeDelta: {x: 900, y: 1}
+  m_SizeDelta: {x: 900, y: 1200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7287269717879760106
 CanvasRenderer:
@@ -1148,6 +1162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
+  hopeNumber: 0
   firstCell: {fileID: 0}
   secondCell: {fileID: 0}
   maxSum: 0
@@ -1157,6 +1172,7 @@ MonoBehaviour:
   isSingleLine: 0
   uIManager: {fileID: 0}
   canvas: {fileID: 0}
+  playingPanle: {fileID: 0}
 --- !u!1 &7636062167191270830
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,11 +6,13 @@ using UnityEngine.UI;
 using System;
 using Unity.VisualScripting;
 using TMPro;
+using static UnityEditor.PlayerSettings;
 
 public class GamePlayManager : MonoBehaviour
 {
 
     public int score;
+    public int hopeNumber;
     [SerializeField] CellClickHandler firstCell;
     [SerializeField] CellClickHandler secondCell;
     [SerializeField] int maxSum;
@@ -23,16 +25,21 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] UIManager uIManager;
     [SerializeField] Canvas canvas;
 
+    [SerializeField] PlayingPanle playingPanle;
 
     public void Init()
     {
         score = 0;
+        hopeNumber = 300;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
         gridAnimation = GameManager.instance.uIManager.gridAnimation;
         cells = GameManager.instance.boardManager.cells;
 
         uIManager = GameManager.instance.uIManager;
         canvas = uIManager.GetComponent<Canvas>();
+        playingPanle = uIManager.playingPanle;
+        playingPanle.SetScoreText(score);
+        playingPanle.SetHopeText(hopeNumber, false);
     }
 
     void AddScore(int _value)
@@ -180,7 +187,6 @@ public class GamePlayManager : MonoBehaviour
 
         if (isSingleLine)
         {
-            Debug.Log("DrawLine");
             DrawnOneLine(_cell1, _cell2);
         }
         else
@@ -216,7 +222,6 @@ public class GamePlayManager : MonoBehaviour
     }
     void DrawnOneLine(Cell cell1, Cell cell2)
     {
-        Debug.Log("Drawn1");
         List<Cell> cells = new List<Cell>();
         cells.Add(cell1);
         cells.Add(cell2);
@@ -247,5 +252,133 @@ public class GamePlayManager : MonoBehaviour
         ReLightCell(_cell1);
         ReLightCell(_cell2);
         firstCell = secondCell = null;
+    }
+
+
+    public void HopeButtonClickEvent()
+    {
+        if (HasPairNumberCanMatching())
+        {
+            // Tô 2 ô có thể matching;
+            UpdateHope(-1);
+        }
+        else
+        {
+            // Rung nút nhấn
+        }
+    }
+    bool HasPairNumberCanMatching()
+    {
+        foreach (var cell  in cells)
+        {
+            if (cell.isMatched)
+            {
+                continue;
+            }
+            if (!cell.button.interactable)
+            {
+                continue;
+            }
+            if (!cell.isMatched)
+            {
+                Debug.Log($"Cell đang sét{cell.cellPosition}");
+                if (HasPathInList(cell))
+                {
+                    Debug.Log(HasPathInList(cell));
+                    return true;
+                }
+                else if (HasPathInBoard(cell, cells, maxSum))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    bool HasPathInBoard(Cell _cell, List<Cell> _cells, int _maxSum)
+    {
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new Vector2Int (-1 ,-1),
+            new Vector2Int (-1 ,0),
+            new Vector2Int (-1 ,1),
+            new Vector2Int (0 , -1),
+            new Vector2Int (0 , 1),
+            new Vector2Int (1 , -1),
+            new Vector2Int (1, 0),
+            new Vector2Int (1, 1)
+        };
+
+        foreach (var direction in directions)
+        {
+            Vector2Int position = _cell.cellPosition + direction;
+
+            while (IsOnGrid(position))
+            {
+                Cell nextCell = GetCellAt(position);
+                Debug.Log(nextCell.cellPosition);
+                if (nextCell == null)
+                {
+                    // ()
+                    break;
+                }
+                if (nextCell.isMatched == true)
+                {
+                    position += direction;
+                    continue;
+                }
+                if (_cell.number != nextCell.number && _cell.number + nextCell.number != maxSum && nextCell.isMatched == false)
+                {
+                    break;
+                }
+                if (_cell.number == nextCell.number || _cell.number + nextCell.number == maxSum)
+                {
+                    Debug.Log($"Tìm thấy match từ {_cell.cellPosition} đến {nextCell.cellPosition}");
+                    _cell.button.image.color = ColorPalette.lightBlue;
+                    nextCell.button.image.color = ColorPalette.lightBlue;
+                    return true;
+                }
+
+                position += direction;
+            }
+        }
+
+        return false ;
+    }
+    bool IsOnGrid(Vector2Int _position)
+    {
+        Debug.Log($"{_position}");
+        return _position.x > 0 && _position.y > 0 && _position.x < cells.Count / GameManager.instance.boardManager.cols && _position.y <= GameManager.instance.boardManager.cols;
+    }
+    bool HasPathInList(Cell _cell)
+    {
+        Debug.Log("Find with list");
+        for (int i = cells.IndexOf(_cell) + 1; i < cells.Count; i++)
+        {
+            if (cells[i].isMatched)
+            {
+                Debug.Log(cells[i].isMatched);
+                Debug.Log(cells[i].cellPosition);
+                continue;
+            }
+
+            if (!cells[i].isMatched && (cells[i].number != _cell.number && cells[i].number + _cell.number != maxSum))
+            {
+                return false;
+            }
+
+            if (cells[i].number == _cell.number || cells[i].number + _cell.number == maxSum)
+            {
+                cells[i].button.image.color = ColorPalette.lightBlue;
+                _cell.button.image.color = ColorPalette.lightBlue;
+                return true;
+            }
+        }
+        return false;
+    }
+    void UpdateHope(int _value)
+    {
+        hopeNumber += _value;
+        playingPanle.SetHopeText(hopeNumber, hopeNumber == 0);
     }
 }
