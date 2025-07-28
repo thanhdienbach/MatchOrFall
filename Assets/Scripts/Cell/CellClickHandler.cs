@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI.Extensions;
 
 [System.Serializable]
 public class CellClickHandler : MonoBehaviour
@@ -12,6 +13,7 @@ public class CellClickHandler : MonoBehaviour
     private void Start()
     {
         gamePlayManager = GameManager.instance.gamePlayManager;
+        cell.matchingEffect = GetComponentInChildren<ParticleSystem>(true);
     }
 
     public void OnClick()

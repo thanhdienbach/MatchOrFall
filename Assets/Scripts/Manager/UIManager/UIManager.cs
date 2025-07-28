@@ -22,6 +22,8 @@ public class UIManager : MonoBehaviour
 
     public PlayingPanle playingPanle;
     public GridAnimation gridAnimation;
+    public MyUILineRenderer uILineRenderer1;
+    public MyUILineRenderer uILineRenderer2;
 
     public void Init()
     {
@@ -30,6 +32,10 @@ public class UIManager : MonoBehaviour
 
         gridAnimation = GetComponentInChildren<GridAnimation>();
         gridAnimation.Init();
+
+        
+        uILineRenderer1.Init();
+        uILineRenderer2.Init();
     }
 
 }

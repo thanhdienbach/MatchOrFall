@@ -46,7 +46,7 @@ public class BoardManager : MonoBehaviour
     {
         gridLayoutGroup.constraintCount = cols;
 
-        cellFullPlace = gridParent.GetComponent<RectTransform>().rect.height / gridLayoutGroup.constraintCount;
+        cellFullPlace = gridParent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.constraintCount;
         cellPlace = cellFullPlace - spaceOfCell;
 
         gridLayoutGroup.cellSize = new Vector2(cellPlace, cellPlace);
@@ -55,7 +55,7 @@ public class BoardManager : MonoBehaviour
     }
     void GenerateGrid()
     {
-        for (int i = 0; i < (startFilledCell / cols + 4) * cols; i++)
+        for (int i = 0; i < cols * 12; i++) // (startFilledCell / cols + 4) * cols
         {
             GameObject buttonObject = Instantiate(cellPrefabs, gridLayoutGroup.transform);
             Button button = buttonObject.GetComponent<Button>();
@@ -99,7 +99,7 @@ public class BoardManager : MonoBehaviour
             {
                 cells[i].button.GetComponentInChildren<TMP_Text>().text = "";
                 cells[i].button.interactable = false;
-                cells[i].button.GetComponentInChildren<Image>().color = Color.white;
+                // cells[i].button.GetComponentInChildren<Image>().color = Color.white;
             }
         }
     }

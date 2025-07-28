@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI.Extensions;
 
 
 [System.Serializable]
@@ -11,6 +12,7 @@ public class Cell
     public TMP_Text text;
     public Vector2Int cellPosition;
     public bool isMatched = false;
+    public ParticleSystem matchingEffect;
 
     public Cell(Button _button)
     {
@@ -24,6 +26,14 @@ public class Cell
         text = _text;
         cellPosition = _cellPosition;
         isMatched = _isMatched;
+    }
+
+    public void PlayMatchingEffect()
+    {
+        if (matchingEffect != null)
+        {
+            matchingEffect.Play();
+        }
     }
 
 }

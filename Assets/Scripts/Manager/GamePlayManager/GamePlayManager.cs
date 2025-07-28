@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using Unity.VisualScripting;
+using TMPro;
 
 public class GamePlayManager : MonoBehaviour
 {
@@ -16,6 +17,11 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] List<Cell> cells;
 
     [SerializeField] GridAnimation gridAnimation;
+    [SerializeField] List<Vector3> linePositions;
+    [SerializeField] bool isSingleLine;
+
+    [SerializeField] UIManager uIManager;
+    [SerializeField] Canvas canvas;
 
 
     public void Init()
@@ -24,12 +30,15 @@ public class GamePlayManager : MonoBehaviour
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
         gridAnimation = GameManager.instance.uIManager.gridAnimation;
         cells = GameManager.instance.boardManager.cells;
+
+        uIManager = GameManager.instance.uIManager;
+        canvas = uIManager.GetComponent<Canvas>();
     }
 
     void AddScore(int _value)
     {
         score += _value;
-        GameManager.instance.uIManager.playingPanle.SetScoreText(score);
+        uIManager.playingPanle.SetScoreText(score);
     }
 
     public void OnCellClick(CellClickHandler _clicker)
@@ -48,11 +57,7 @@ public class GamePlayManager : MonoBehaviour
                 if (RightWay(firstCell.cell, secondCell.cell))
                 {
                     // Update point 
-                    // Xứ lý 2 ô 
-                    //Resset trạng thái
-
                     HandlingWhenMatching(firstCell.cell, secondCell.cell);
-                    Debug.Log("Finded");
                 }
                 else
                 {
@@ -100,10 +105,14 @@ public class GamePlayManager : MonoBehaviour
     }
     bool Adjacent(Cell _cell1, Cell _cell2)
     {
+        isSingleLine = true;
+
         return Math.Abs(_cell1.cellPosition.x - _cell2.cellPosition.x) <= 1 && Math.Abs(_cell1.cellPosition.y - _cell2.cellPosition.y) <= 1;
     }
     bool ClearPath(Cell _cell1, Cell _cell2)
     {
+        isSingleLine = true;
+
         int dx = Math.Sign(_cell2.cellPosition.x - _cell1.cellPosition.x);
         int dy = Math.Sign(_cell2.cellPosition.y - _cell1.cellPosition.y);
 
@@ -138,6 +147,8 @@ public class GamePlayManager : MonoBehaviour
     }
     bool ClearPathDifferentRow(Cell _cell1, Cell _cell2)
     {
+        isSingleLine = false;
+
         int index1 = cells.IndexOf(_cell1);
         int index2 = cells.IndexOf(_cell2);
         int dx = Math.Sign(index2 - index1);
@@ -165,14 +176,70 @@ public class GamePlayManager : MonoBehaviour
     }
     void HandlingWhenMatching(Cell _cell1, Cell _cell2)
     {
-        ReLightCell(_cell1);
-        ReLightCell(_cell2);
+        HandleCell(_cell1, _cell2);
+
+        if (isSingleLine)
+        {
+            Debug.Log("DrawLine");
+            DrawnOneLine(_cell1, _cell2);
+        }
+        else
+        {
+            DrawnDoubleLine(_cell1, _cell2, gridAnimation.GetComponent<RectTransform>());
+        }
+        
+        AddScore(1); // Hệ thống tính điểm
+    }
+    void HandleCell(Cell _cell1, Cell _cell2)
+    {
+        _cell1.PlayMatchingEffect();
+        _cell2.PlayMatchingEffect();
+        BlurCell(_cell1, _cell2);
         _cell1.button.interactable = false;
         _cell2.button.interactable = false;
         _cell1.isMatched = true;
         _cell2.isMatched = true;
         firstCell = secondCell = null;
-        AddScore(1); // Hệ thống tính điểm
+    }
+    void BlurCell(Cell _cell1, Cell _cell2)
+    {
+        ReLightCell(_cell1);
+        ReLightCell(_cell2);
+        BlurText(_cell1);
+        BlurText(_cell2);
+    }
+    void BlurText(Cell _cell)
+    {
+        Color curentColor = _cell.button.GetComponentInChildren<TMP_Text>().color;
+        curentColor.a = 0.5f;
+        _cell.button.GetComponentInChildren<TMP_Text>().color = curentColor;
+    }
+    void DrawnOneLine(Cell cell1, Cell cell2)
+    {
+        Debug.Log("Drawn1");
+        List<Cell> cells = new List<Cell>();
+        cells.Add(cell1);
+        cells.Add(cell2);
+        uIManager.uILineRenderer1.DrawnLine(cells);
+    }
+    void DrawnDoubleLine(Cell _cell1, Cell _cell2, RectTransform _gridParentTransform)
+    {
+        Vector2 cell1Position = GetLocalCenter(_cell1.button.transform as RectTransform);
+        Vector2 cell2Position = GetLocalCenter(_cell2.button.transform as RectTransform);
+
+        float rightEdgeX = _gridParentTransform.rect.width / 2;
+        float leftEdgeX = -_gridParentTransform.rect.width / 2;
+
+        Vector2 rightExit = new Vector2(rightEdgeX, cell1Position.y);
+        Vector2 leftEnter = new Vector2(leftEdgeX, cell2Position.y);
+
+        uIManager.uILineRenderer1.DrawnLineByPosition(cell1Position, rightExit);
+        uIManager.uILineRenderer2.DrawnLineByPosition(leftEnter, cell2Position);
+    }
+    Vector2 GetLocalCenter(RectTransform rectTransform)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, rectTransform.position, null, out Vector2 localPosition);
+        return localPosition;
     }
     void HandlingWhenNotMatching(Cell _cell1, Cell _cell2)
     {
