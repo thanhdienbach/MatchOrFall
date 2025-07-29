@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
@@ -26,8 +26,12 @@ public class BoardManager : MonoBehaviour
     public float cellFullPlace;
     [SerializeField] float cellPlace;
     [SerializeField] float spaceOfCell = 1.0f;
+
+    [Header("Add numbers variable")]
+    [SerializeField] List<Cell> addNumbers;
     
-    
+
+
 
 
     public void Init()
@@ -108,7 +112,6 @@ public class BoardManager : MonoBehaviour
             {
                 cells[i].button.GetComponentInChildren<TMP_Text>().text = "";
                 cells[i].button.interactable = false;
-                // cells[i].button.GetComponentInChildren<Image>().color = Color.white;
             }
         }
     }
@@ -157,4 +160,101 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    public void GenerateCell()
+    {
+
+        int indexOfFirstCellOutOffNumberList = 0;
+        Debug.Log(cells[cells.Count - 1].cellPosition);
+        if (cells[cells.Count - 1].number > 0)
+        {
+            indexOfFirstCellOutOffNumberList = cells.Count;
+            Debug.Log(cells.Count);
+            Debug.Log(indexOfFirstCellOutOffNumberList);
+        }
+        else
+        {
+            foreach (var cell in cells)
+            {
+                if (cell.button.interactable)
+                {
+                    addNumbers.Add(cell);
+                }
+
+                if (!cell.button.interactable && cell.number == 0)
+                {
+                    indexOfFirstCellOutOffNumberList = cells.IndexOf(cell);
+                    break;
+                }
+            }
+        }
+        if (indexOfFirstCellOutOffNumberList >= cells.Count)
+        {
+            foreach (var cell in cells)
+            {
+                if (cell.button.interactable)
+                {
+                    addNumbers.Add(cell);
+                }
+
+                if (!cell.button.interactable && cell.number == 0)
+                {
+                    indexOfFirstCellOutOffNumberList = cells.IndexOf(cell);
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0; i < addNumbers.Count; i++)
+        {
+            if (indexOfFirstCellOutOffNumberList >= cells.Count)
+            {
+                GameObject buttonObject = Instantiate(cellPrefabs, gridLayoutGroup.transform);
+                Button button = buttonObject.GetComponent<Button>();
+
+                Cell cell = new Cell(button);
+
+                int cellPositionY;
+                if ((indexOfFirstCellOutOffNumberList + 1) % cols == 0)
+                {
+                    cellPositionY = cols;
+                }
+                else
+                {
+                    cellPositionY = (indexOfFirstCellOutOffNumberList + 1) % cols;
+                }
+                int cellPositionX;
+                if (cellPositionY == cols)
+                {
+                    cellPositionX = (indexOfFirstCellOutOffNumberList + 1) / cols;
+                }
+                else
+                {
+                    cellPositionX = (indexOfFirstCellOutOffNumberList + 1) / cols + 1;
+                }
+
+                Vector2Int cellPosition = new Vector2Int(cellPositionX, cellPositionY);
+                cell.cellPosition = cellPosition;
+                cell.button.GetComponent<CellClickHandler>().cell = cell;
+                cell.number = addNumbers[i].number;
+                cell.button.GetComponentInChildren<TMP_Text>().text = addNumbers[i].number.ToString();
+                cells.Add(cell);
+
+                ++indexOfFirstCellOutOffNumberList;
+                Debug.Log(cellPosition);
+                Debug.Log("Hết cell, cần tạo cell");
+            }
+            else 
+            {
+                Debug.Log($"index of first number out off list" + indexOfFirstCellOutOffNumberList);
+                Debug.Log($"số cần thêm" + i);
+                cells[indexOfFirstCellOutOffNumberList].button.interactable = true;
+                cells[indexOfFirstCellOutOffNumberList].number = addNumbers[i].number;
+                cells[indexOfFirstCellOutOffNumberList].button.GetComponentInChildren<TMP_Text>().text = addNumbers[i].number.ToString();
+                ++indexOfFirstCellOutOffNumberList;
+            }
+        }
+
+        addNumbers.Clear();
+        
+    }
 }

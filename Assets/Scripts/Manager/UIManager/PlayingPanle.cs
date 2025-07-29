@@ -8,8 +8,12 @@ public class PlayingPanle : MonoBehaviour
 {
 
     [SerializeField] TMP_Text scoreText;
+
     [SerializeField] TMP_Text hopeText;
     [SerializeField] Button hopeButton;
+
+    [SerializeField] TMP_Text addNumbersText;
+    [SerializeField] Button addNumbersButton;
 
     public void Init()
     {
@@ -36,6 +40,18 @@ public class PlayingPanle : MonoBehaviour
         else
         {
             hopeButton.interactable = true;
+        }
+    }
+    public void SetAddNumberText(int _value, bool _isZero)
+    {
+        addNumbersText.text = _value.ToString();
+        if(_isZero)
+        {
+            addNumbersButton.interactable = false;
+        }
+        else
+        {
+            addNumbersButton.interactable = true;
         }
     }
 }

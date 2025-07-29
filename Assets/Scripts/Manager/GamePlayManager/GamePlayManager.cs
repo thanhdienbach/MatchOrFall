@@ -13,6 +13,7 @@ public class GamePlayManager : MonoBehaviour
 
     public int score;
     public int hopeNumber;
+    public int addNunbersNumber;
     [SerializeField] CellClickHandler firstCell;
     [SerializeField] CellClickHandler secondCell;
     [SerializeField] int maxSum;
@@ -26,20 +27,27 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] Canvas canvas;
 
     [SerializeField] PlayingPanle playingPanle;
+    [SerializeField] BoardManager boardManager;
+
+    [SerializeField] int rowCanClear1 = 0;
+    [SerializeField] int rowCanClear2 = 0;
 
     public void Init()
     {
         score = 0;
         hopeNumber = 300;
+        addNunbersNumber = 5;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
         gridAnimation = GameManager.instance.uIManager.gridAnimation;
         cells = GameManager.instance.boardManager.cells;
 
         uIManager = GameManager.instance.uIManager;
         canvas = uIManager.GetComponent<Canvas>();
+        boardManager = GameManager.instance.GetComponentInChildren<BoardManager>();
         playingPanle = uIManager.playingPanle;
         playingPanle.SetScoreText(score);
         playingPanle.SetHopeText(hopeNumber, false);
+        playingPanle.SetAddNumberText(addNunbersNumber, false);
     }
 
     void AddScore(int _value)
@@ -63,7 +71,6 @@ public class GamePlayManager : MonoBehaviour
             {
                 if (RightWay(firstCell.cell, secondCell.cell))
                 {
-                    // Update point 
                     HandlingWhenMatching(firstCell.cell, secondCell.cell);
                 }
                 else
@@ -194,7 +201,20 @@ public class GamePlayManager : MonoBehaviour
             DrawnDoubleLine(_cell1, _cell2, gridAnimation.GetComponent<RectTransform>());
         }
         
+        if (IsCleanedRows(_cell1, _cell2))
+        {
+            if (rowCanClear1 > 0)
+            {
+                Debug.Log("Clear row: " + rowCanClear1);
+            }
+            if (rowCanClear2 > 0)
+            {
+                Debug.Log("Clear row:" + rowCanClear2);
+            }
+        }
+
         AddScore(1); // Hệ thống tính điểm
+        firstCell = secondCell = null;
     }
     void HandleCell(Cell _cell1, Cell _cell2)
     {
@@ -205,7 +225,6 @@ public class GamePlayManager : MonoBehaviour
         _cell2.button.interactable = false;
         _cell1.isMatched = true;
         _cell2.isMatched = true;
-        firstCell = secondCell = null;
     }
     void BlurCell(Cell _cell1, Cell _cell2)
     {
@@ -257,14 +276,13 @@ public class GamePlayManager : MonoBehaviour
 
     public void HopeButtonClickEvent()
     {
-        if (HasPairNumberCanMatching())
+        if (HasPairNumberCanMatching()) // And hightlight cell
         {
-            // Tô 2 ô có thể matching;
             UpdateHope(-1);
         }
         else
         {
-            // Rung nút nhấn
+            gridAnimation.Ring();
         }
     }
     bool HasPairNumberCanMatching()
@@ -281,7 +299,6 @@ public class GamePlayManager : MonoBehaviour
             }
             if (!cell.isMatched)
             {
-                Debug.Log($"Cell đang sét{cell.cellPosition}");
                 if (HasPathInList(cell))
                 {
                     Debug.Log(HasPathInList(cell));
@@ -316,10 +333,8 @@ public class GamePlayManager : MonoBehaviour
             while (IsOnGrid(position))
             {
                 Cell nextCell = GetCellAt(position);
-                Debug.Log(nextCell.cellPosition);
                 if (nextCell == null)
                 {
-                    // ()
                     break;
                 }
                 if (nextCell.isMatched == true)
@@ -333,7 +348,6 @@ public class GamePlayManager : MonoBehaviour
                 }
                 if (_cell.number == nextCell.number || _cell.number + nextCell.number == maxSum)
                 {
-                    Debug.Log($"Tìm thấy match từ {_cell.cellPosition} đến {nextCell.cellPosition}");
                     _cell.button.image.color = ColorPalette.lightBlue;
                     nextCell.button.image.color = ColorPalette.lightBlue;
                     return true;
@@ -347,18 +361,14 @@ public class GamePlayManager : MonoBehaviour
     }
     bool IsOnGrid(Vector2Int _position)
     {
-        Debug.Log($"{_position}");
         return _position.x > 0 && _position.y > 0 && _position.x < cells.Count / GameManager.instance.boardManager.cols && _position.y <= GameManager.instance.boardManager.cols;
     }
     bool HasPathInList(Cell _cell)
     {
-        Debug.Log("Find with list");
         for (int i = cells.IndexOf(_cell) + 1; i < cells.Count; i++)
         {
             if (cells[i].isMatched)
             {
-                Debug.Log(cells[i].isMatched);
-                Debug.Log(cells[i].cellPosition);
                 continue;
             }
 
@@ -380,5 +390,87 @@ public class GamePlayManager : MonoBehaviour
     {
         hopeNumber += _value;
         playingPanle.SetHopeText(hopeNumber, hopeNumber == 0);
+    }
+
+    public void AddNumbersButtonCleckEvent()
+    {
+        boardManager.GenerateCell();
+        addNunbersNumber -= 1;
+        playingPanle.SetAddNumberText(addNunbersNumber, addNunbersNumber == 0);
+    }
+    void AddNumbersNumber(int _value, bool _isZero)
+    {
+        addNunbersNumber += _value;
+        playingPanle.SetAddNumberText(addNunbersNumber, addNunbersNumber == 0);
+    }
+
+    /// <summary>
+    /// Check rows have cell matching. If all cell are matching => Dellet all cells in row 
+    /// </summary>
+    /// <param name="_cell1"></param>
+    /// <param name="_cell2"></param>
+    /// <returns></returns>
+    bool IsCleanedRows(Cell _cell1, Cell _cell2)
+    {
+        rowCanClear1 = 0;
+        rowCanClear2 = 0;
+        int row1 = _cell1.cellPosition.x;
+        int row2 = _cell2.cellPosition.x;
+        Debug.Log(row1);
+        Debug.Log(row2);
+        if (row1 != row2)
+        {
+            Debug.Log("Case double check");
+            bool isClearRow1 = IsClearRow(row1);
+            if (isClearRow1)
+            {
+                rowCanClear1 = row1;
+            }
+            bool isClearRow2 = IsClearRow(row2);
+            if (isClearRow2)
+            {
+                rowCanClear2 = row2;
+            }
+            return isClearRow1 || isClearRow2;
+        }
+        else if (row1 == row2)
+        {
+            bool isClearRow1 = IsClearRow(row1);
+            if (isClearRow1)
+            {
+                rowCanClear1 = row1;
+            }
+            return isClearRow1;
+        }
+
+        return false;
+    }
+    bool IsClearRow(int _row)
+    {
+        Debug.Log($"Check clearow at row: " +_row);
+        int countMatchingCell = 0;
+        Vector2Int startPosition = new Vector2Int(_row, 1);
+        int startIndex = 0;
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells[i].cellPosition == startPosition)
+            {
+                startIndex = i;
+                Debug.Log($"Start index: " + i);
+                break;
+            }
+        }
+
+        for (int i = startIndex; i < startIndex + boardManager.cols; i++)
+        {
+            Debug.Log($"Current index: " + i + cells[i].isMatched);
+            if (cells[i].isMatched || cells[i].number == 0)
+            {
+                countMatchingCell += 1;
+                Debug.Log($"Matching cell: {countMatchingCell} at {cells[i].cellPosition}");
+            }
+        }
+
+        return countMatchingCell == boardManager.cols;
     }
 }
