@@ -257,4 +257,24 @@ public class BoardManager : MonoBehaviour
         addNumbers.Clear();
         
     }
+
+    public void AddOneRow()
+    {
+        for (int i = 0; i < cols; ++i)
+        {
+            GameObject buttonObject = Instantiate(cellPrefabs, gridLayoutGroup.transform);
+            Button button = buttonObject.GetComponent<Button>();
+
+            Cell cell = new Cell(button);
+
+            int cellPositionX = cells.Count / cols + 1;
+            int cellPositionY = cells.Count % cols + 1;
+
+            Vector2Int cellPosition = new Vector2Int(cellPositionX, cellPositionY);
+            cell.cellPosition = cellPosition;
+            cell.button.GetComponent<CellClickHandler>().cell = cell;
+            cell.button.interactable = false;
+            cells.Add(cell);
+        }
+    }
 }

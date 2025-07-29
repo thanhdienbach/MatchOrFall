@@ -205,11 +205,11 @@ public class GamePlayManager : MonoBehaviour
         {
             if (rowCanClear1 > 0)
             {
-                Debug.Log("Clear row: " + rowCanClear1);
+                HandleClearRow(rowCanClear1);
             }
             if (rowCanClear2 > 0)
             {
-                Debug.Log("Clear row:" + rowCanClear2);
+                HandleClearRow(rowCanClear2);
             }
         }
 
@@ -407,7 +407,7 @@ public class GamePlayManager : MonoBehaviour
     /// <summary>
     /// Check rows have cell matching. If all cell are matching => Dellet all cells in row 
     /// </summary>
-    /// <param name="_cell1"></param>
+    /// <param name="_cell1"></param> 
     /// <param name="_cell2"></param>
     /// <returns></returns>
     bool IsCleanedRows(Cell _cell1, Cell _cell2)
@@ -472,5 +472,27 @@ public class GamePlayManager : MonoBehaviour
         }
 
         return countMatchingCell == boardManager.cols;
+    }
+
+    void HandleClearRow(int _rowNumber)
+    {
+        boardManager.AddOneRow();
+        List<Cell> cellToremove = new List<Cell>();
+        foreach (var cell in cells)
+        {
+            if (cell.cellPosition.x == _rowNumber)
+            {
+                cellToremove.Add(cell);
+                Destroy(cell.button.gameObject);
+            }
+            else if (cell.cellPosition.x > _rowNumber)
+            {
+                cell.cellPosition.x -= 1;
+            }
+        }
+        foreach (var cell in cellToremove)
+        {
+            cells.Remove(cell);
+        }
     }
 }
