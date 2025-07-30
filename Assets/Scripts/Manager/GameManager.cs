@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     public UIManager uIManager;
     public BoardManager boardManager;
     public GamePlayManager gamePlayManager;
+    public AudioManager audioManager;
 
 
     void Start()
@@ -34,6 +35,9 @@ public class GameManager : MonoBehaviour
         boardManager = GetComponentInChildren<BoardManager>();
         uIManager = gameObject.GetComponentInChildren<UIManager>();
         gamePlayManager = GetComponentInChildren<GamePlayManager>();
+        audioManager = GetComponentInChildren<AudioManager>();
+
+        audioManager.Init();
 
         uIManager.Init();
 

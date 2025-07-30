@@ -190,6 +190,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!224 &831790140 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8952051544074771520, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+  m_PrefabInstance: {fileID: 6726611885330560517}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1635441611
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,6 +295,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 463557855343570235, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: matchingCell1
+      value: 
+      objectReference: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
+    - target: {fileID: 463557855343570235, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: matchingCell2
+      value: 
+      objectReference: {fileID: 8300000, guid: fe0b1f9aeb45b41b089175aeeabd5d95, type: 3}
     - target: {fileID: 522606738680159739, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
       propertyPath: m_Camera
       value: 
@@ -334,9 +347,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6841800504057570933, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -0.0042102337
+    - target: {fileID: 5881363994305274426, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: canvasTransform
+      value: 
+      objectReference: {fileID: 831790140}
+    - target: {fileID: 5982557674042495863, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: m_Color.b
+      value: 0.20784315
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982557674042495863, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: m_Color.g
+      value: 0.8235295
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982557674042495863, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
+      propertyPath: m_Color.r
+      value: 0.9960785
       objectReference: {fileID: 0}
     - target: {fileID: 7636062167191270830, guid: b53f1229653dd514d9e80cb2582e144a, type: 3}
       propertyPath: m_Name

@@ -11,57 +11,65 @@ using static UnityEditor.PlayerSettings;
 public class GamePlayManager : MonoBehaviour
 {
 
-    public int score;
-    public int hopeNumber;
-    public int addNunbersNumber;
-    [SerializeField] CellClickHandler firstCell;
-    [SerializeField] CellClickHandler secondCell;
-    [SerializeField] int maxSum;
-    [SerializeField] List<Cell> cells;
-
+    [Header("Component variable")]
     [SerializeField] GridAnimation gridAnimation;
-    [SerializeField] List<Vector3> linePositions;
-    [SerializeField] bool isSingleLine;
-
     [SerializeField] UIManager uIManager;
     [SerializeField] Canvas canvas;
-
     [SerializeField] PlayingPanle playingPanle;
     [SerializeField] BoardManager boardManager;
+    [SerializeField] AudioManager audioManager;
+    [SerializeField] ScoreManager scoreManager;
 
+    [Header("Match cell variable")]
+    [SerializeField] CellClickHandler firstCell;
+    [SerializeField] CellClickHandler secondCell;
+    [SerializeField] List<Cell> cells;
+    [SerializeField] int maxSum;
+
+    [Header("Score variable")]
+    [SerializeField] int addScore;
+
+    [Header("Line renderer variable")]
+    [SerializeField] bool isSingleLine;
+
+    [Header("UI variable")]
+    public int hopeNumber;
+    public int addNunbersNumber;
+
+    [Header("Board manager variable")]
     [SerializeField] int rowCanClear1 = 0;
     [SerializeField] int rowCanClear2 = 0;
 
     public void Init()
     {
-        score = 0;
-        hopeNumber = 300;
+
+        hopeNumber = 10;
         addNunbersNumber = 5;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
-        gridAnimation = GameManager.instance.uIManager.gridAnimation;
-        cells = GameManager.instance.boardManager.cells;
+
+        scoreManager = GetComponent<ScoreManager>();
+        scoreManager.Init();
 
         uIManager = GameManager.instance.uIManager;
         canvas = uIManager.GetComponent<Canvas>();
         boardManager = GameManager.instance.GetComponentInChildren<BoardManager>();
         playingPanle = uIManager.playingPanle;
-        playingPanle.SetScoreText(score);
+        playingPanle.SetScoreText(scoreManager.currentScore);
         playingPanle.SetHopeText(hopeNumber, false);
         playingPanle.SetAddNumberText(addNunbersNumber, false);
-    }
+        audioManager = GameManager.instance.audioManager;
+        gridAnimation = GameManager.instance.uIManager.gridAnimation;
+        cells = GameManager.instance.boardManager.cells;
 
-    void AddScore(int _value)
-    {
-        score += _value;
-        uIManager.playingPanle.SetScoreText(score);
     }
 
     public void OnCellClick(CellClickHandler _clicker)
     {
         HightLightCell(_clicker.cell);
-
+        
         if (firstCell == null)
         {
+            audioManager.PlayNumberTouch(_clicker.cell.number);
             firstCell = _clicker;
         }
         else if (secondCell == null && _clicker != firstCell)
@@ -75,11 +83,13 @@ public class GamePlayManager : MonoBehaviour
                 }
                 else
                 {
+                    audioManager.PlayNotMatchingCellOneShot();
                     HandlingWhenNotMatching(firstCell.cell, secondCell.cell);
                 }
             }
             else
             {
+                audioManager.PlayNumberTouch(_clicker.cell.number);
                 ReLightCell(firstCell.cell);
                 firstCell = secondCell;
                 secondCell = null;
@@ -89,7 +99,7 @@ public class GamePlayManager : MonoBehaviour
 
     void HightLightCell(Cell _cell)
     {
-        _cell.button.GetComponent<Image>().color = ColorPalette.lightBlue;
+        _cell.button.GetComponent<Image>().color = ColorPalette.buleMint;
     }
     void ReLightCell(Cell _cell)
     {
@@ -105,14 +115,17 @@ public class GamePlayManager : MonoBehaviour
     {
         if (Adjacent(_cell1, _cell2))
         {
+            audioManager.PlayMatchingCell1OneShot();
             return true;
         }
         else if (ClearPath(_cell1, _cell2))
         {
+            audioManager.PlayMatchingCell2OneShot();
             return true;
         }
         else if(ClearPathDifferentRow(_cell1, _cell2))
         {
+            audioManager.PlayerMatchingCellInListOneShot();
             return true;
         }
         return false;
@@ -120,12 +133,14 @@ public class GamePlayManager : MonoBehaviour
     bool Adjacent(Cell _cell1, Cell _cell2)
     {
         isSingleLine = true;
+        addScore = 1;
 
         return Math.Abs(_cell1.cellPosition.x - _cell2.cellPosition.x) <= 1 && Math.Abs(_cell1.cellPosition.y - _cell2.cellPosition.y) <= 1;
     }
     bool ClearPath(Cell _cell1, Cell _cell2)
     {
         isSingleLine = true;
+        addScore = 4;
 
         int dx = Math.Sign(_cell2.cellPosition.x - _cell1.cellPosition.x);
         int dy = Math.Sign(_cell2.cellPosition.y - _cell1.cellPosition.y);
@@ -162,6 +177,11 @@ public class GamePlayManager : MonoBehaviour
     bool ClearPathDifferentRow(Cell _cell1, Cell _cell2)
     {
         isSingleLine = false;
+        addScore = 4;
+
+        Cell temp = _cell2;
+        _cell2 = _cell1;
+        _cell1 = temp;
 
         int index1 = cells.IndexOf(_cell1);
         int index2 = cells.IndexOf(_cell2);
@@ -213,7 +233,7 @@ public class GamePlayManager : MonoBehaviour
             }
         }
 
-        AddScore(1); // Hệ thống tính điểm
+        scoreManager.AddScoreHandle(addScore, firstCell.cell, secondCell.cell);
         firstCell = secondCell = null;
     }
     void HandleCell(Cell _cell1, Cell _cell2)
@@ -276,12 +296,20 @@ public class GamePlayManager : MonoBehaviour
 
     public void HopeButtonClickEvent()
     {
-        if (HasPairNumberCanMatching()) // And hightlight cell
+        if (firstCell != null)
         {
+            firstCell.cell.button.image.color = Color.white;
+            firstCell = null;
+        }
+        
+        if (HasPairNumberCanMatching())
+        {
+            audioManager.PlayHopeOneShot();
             UpdateHope(-1);
         }
         else
         {
+            audioManager.PlayNotMatchingCellOneShot();
             gridAnimation.Ring();
         }
     }
@@ -348,8 +376,8 @@ public class GamePlayManager : MonoBehaviour
                 }
                 if (_cell.number == nextCell.number || _cell.number + nextCell.number == maxSum)
                 {
-                    _cell.button.image.color = ColorPalette.lightBlue;
-                    nextCell.button.image.color = ColorPalette.lightBlue;
+                    _cell.button.image.color = ColorPalette.statYellow;
+                    nextCell.button.image.color = ColorPalette.statYellow;
                     return true;
                 }
 
@@ -379,8 +407,8 @@ public class GamePlayManager : MonoBehaviour
 
             if (cells[i].number == _cell.number || cells[i].number + _cell.number == maxSum)
             {
-                cells[i].button.image.color = ColorPalette.lightBlue;
-                _cell.button.image.color = ColorPalette.lightBlue;
+                cells[i].button.image.color = ColorPalette.statYellow;
+                _cell.button.image.color = ColorPalette.statYellow;
                 return true;
             }
         }
