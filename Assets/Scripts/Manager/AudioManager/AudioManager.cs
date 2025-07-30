@@ -17,6 +17,9 @@ public class AudioManager : MonoBehaviour
 
     [SerializeField] AudioClip hope;
 
+    [SerializeField] AudioClip countDownClearRow;
+    [SerializeField] AudioClip clearRown;
+
     public void Init()
     {
         
@@ -77,6 +80,12 @@ public class AudioManager : MonoBehaviour
     {
         gameAudioSource.PlayOneShot(hope);
     }
-
-
+    public void PlayCountDownClearRowOneShot()
+    {
+        gameAudioSource.PlayOneShot(countDownClearRow);
+    }
+    public void PlayClearRowOneShot()
+    {
+        gameAudioSource.PlayOneShot(clearRown);
+    }
 }

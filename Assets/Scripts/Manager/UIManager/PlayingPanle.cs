@@ -20,12 +20,6 @@ public class PlayingPanle : MonoBehaviour
         
     }
 
-    
-    void Update()
-    {
-        
-    }
-
     public void SetScoreText(int _value)
     {
         scoreText.text = "Score: " + _value;

@@ -7,6 +7,7 @@ using System;
 using Unity.VisualScripting;
 using TMPro;
 using static UnityEditor.PlayerSettings;
+using DG.Tweening;
 
 public class GamePlayManager : MonoBehaviour
 {
@@ -43,7 +44,7 @@ public class GamePlayManager : MonoBehaviour
     public void Init()
     {
 
-        hopeNumber = 10;
+        hopeNumber = 50;
         addNunbersNumber = 5;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
 
@@ -223,13 +224,32 @@ public class GamePlayManager : MonoBehaviour
         
         if (IsCleanedRows(_cell1, _cell2))
         {
-            if (rowCanClear1 > 0)
+            if (rowCanClear1 > 0 && rowCanClear2 > 0)
             {
-                HandleClearRow(rowCanClear1);
+                if (rowCanClear1 > rowCanClear2)
+                {
+                    audioManager.PlayCountDownClearRowOneShot();
+                    HandleClearRow(rowCanClear1);
+                    HandleClearRow(rowCanClear2);
+                }
+                else
+                {
+                    audioManager.PlayCountDownClearRowOneShot();
+                    HandleClearRow(rowCanClear2);
+                    HandleClearRow(rowCanClear1);
+                }
             }
-            if (rowCanClear2 > 0)
+            else
             {
-                HandleClearRow(rowCanClear2);
+                audioManager.PlayCountDownClearRowOneShot();
+                if (rowCanClear1 > 0)
+                {
+                    HandleClearRow(rowCanClear1);
+                }
+                if (rowCanClear2 > 0)
+                {
+                    HandleClearRow(rowCanClear2);
+                }
             }
         }
 
@@ -444,11 +464,9 @@ public class GamePlayManager : MonoBehaviour
         rowCanClear2 = 0;
         int row1 = _cell1.cellPosition.x;
         int row2 = _cell2.cellPosition.x;
-        Debug.Log(row1);
-        Debug.Log(row2);
+
         if (row1 != row2)
         {
-            Debug.Log("Case double check");
             bool isClearRow1 = IsClearRow(row1);
             if (isClearRow1)
             {
@@ -475,7 +493,6 @@ public class GamePlayManager : MonoBehaviour
     }
     bool IsClearRow(int _row)
     {
-        Debug.Log($"Check clearow at row: " +_row);
         int countMatchingCell = 0;
         Vector2Int startPosition = new Vector2Int(_row, 1);
         int startIndex = 0;
@@ -484,18 +501,15 @@ public class GamePlayManager : MonoBehaviour
             if (cells[i].cellPosition == startPosition)
             {
                 startIndex = i;
-                Debug.Log($"Start index: " + i);
                 break;
             }
         }
 
         for (int i = startIndex; i < startIndex + boardManager.cols; i++)
         {
-            Debug.Log($"Current index: " + i + cells[i].isMatched);
             if (cells[i].isMatched || cells[i].number == 0)
             {
                 countMatchingCell += 1;
-                Debug.Log($"Matching cell: {countMatchingCell} at {cells[i].cellPosition}");
             }
         }
 
@@ -505,22 +519,53 @@ public class GamePlayManager : MonoBehaviour
     void HandleClearRow(int _rowNumber)
     {
         boardManager.AddOneRow();
-        List<Cell> cellToremove = new List<Cell>();
+        List<Cell> cellToRemove = new List<Cell>();
         foreach (var cell in cells)
         {
             if (cell.cellPosition.x == _rowNumber)
             {
-                cellToremove.Add(cell);
-                Destroy(cell.button.gameObject);
+                cellToRemove.Add(cell);
             }
             else if (cell.cellPosition.x > _rowNumber)
             {
                 cell.cellPosition.x -= 1;
             }
         }
-        foreach (var cell in cellToremove)
+
+        ClearRowAnimation(cellToRemove);
+
+        foreach (var cell in cellToRemove)
         {
             cells.Remove(cell);
+        }
+    }
+    void ClearRowAnimation(List<Cell> _cells)
+    {
+        foreach (var cell in _cells)
+        {
+            DG.Tweening.Sequence sequene = DOTween.Sequence();
+
+            RectTransform rectTransform = cell.button.GetComponent<RectTransform>();
+            CanvasGroup canvasGroup = cell.button.GetComponent<CanvasGroup>();
+
+            sequene.Append(rectTransform.DOShakeAnchorPos
+                (
+                duration: 0.3f,
+                strength: new Vector2(10f, 10f),
+                vibrato: 10,
+                randomness: 90,
+                snapping: false,
+                fadeOut: true
+                ));
+
+            sequene.Append(rectTransform.DOScale(1.5f, 0.3f).SetEase(Ease.OutQuad));
+            sequene.Join(canvasGroup.DOFade(0f, 0.3f));
+
+            sequene.OnComplete(() =>
+            {
+                audioManager.PlayClearRowOneShot();
+                Destroy(cell.button.gameObject);
+            });
         }
     }
 }

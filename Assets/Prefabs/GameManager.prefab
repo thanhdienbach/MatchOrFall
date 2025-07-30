@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9960785, g: 0.8235295, b: 0.20784315, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -880,8 +880,8 @@ MonoBehaviour:
   evenNumberTouch: {fileID: 8300000, guid: 29bde6326b4c34ad8a12da475f79b50a, type: 3}
   oddNumberTouch: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
   notMatching: {fileID: 8300000, guid: 7e9ee6dc04a5d40d1a5dfc4beb9865e7, type: 3}
-  matchingCell1: {fileID: 8300000, guid: fe0b1f9aeb45b41b089175aeeabd5d95, type: 3}
-  matchingCell2: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
+  matchingCell1: {fileID: 8300000, guid: d46323e22e74e46baa241cbf48c85671, type: 3}
+  matchingCell2: {fileID: 8300000, guid: fe0b1f9aeb45b41b089175aeeabd5d95, type: 3}
   matchingCellInList: {fileID: 8300000, guid: 3becec1909f194046945d85ac1077772, type: 3}
   hope: {fileID: 0}
 --- !u!82 &7649347939903861917
@@ -1110,7 +1110,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 698}
+  m_AnchoredPosition: {x: 0, y: 856}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1705894776970141258
@@ -1168,8 +1168,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48
-  m_fontSizeBase: 48
+  m_fontSize: 70
+  m_fontSizeBase: 70
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1652,7 +1652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playingPanle: {fileID: 0}
-  canvasTransform: {fileID: 9007269635160081192}
+  canvasTransform: {fileID: 8952051544074771520}
   currentScore: 0
   addScore: 0
   scorePopupPrefabs: {fileID: 5715851146838733838, guid: bc30695c17b033c4ba6ba9c990659328, type: 3}

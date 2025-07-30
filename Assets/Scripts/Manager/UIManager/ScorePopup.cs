@@ -25,9 +25,8 @@ public class ScorePopup : MonoBehaviour
         transform.SetParent(parentCanvas, false);
         transform.position = _screenPosition;
 
-        // canvasGroup.alpha = 0;
+        canvasGroup.alpha = 0;
         transform.localScale = Vector3.one;
-        Debug.Log("Show text");
         Sequence sequence = DOTween.Sequence();
         sequence.Append(canvasGroup.DOFade(1.0f, 0.3f));
         sequence.Join(transform.DOMoveY(transform.position.y + 50f, 0.6f));

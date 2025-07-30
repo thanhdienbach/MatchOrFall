@@ -75,24 +75,9 @@ public class BoardManager : MonoBehaviour
 
             Cell cell = new Cell(button);
 
-            int cellPositionY;
-            if ((i + 1) % cols == 0)
-            {
-                cellPositionY = cols;
-            }
-            else
-            {
-                cellPositionY = (i + 1) % cols;
-            }
-            int cellPositionX;
-            if (cellPositionY == cols)
-            {
-                cellPositionX = (i + 1) / cols;
-            }
-            else
-            {
-                cellPositionX = (i + 1) / cols + 1;
-            }
+            
+            int cellPositionX = i / cols + 1;
+            int cellPositionY = i % cols + 1;
             Vector2Int cellPosition = new Vector2Int(cellPositionX, cellPositionY);
             cell.cellPosition = cellPosition;
             cell.button.GetComponent<CellClickHandler>().cell = cell;
@@ -164,12 +149,9 @@ public class BoardManager : MonoBehaviour
     {
 
         int indexOfFirstCellOutOffNumberList = 0;
-        Debug.Log(cells[cells.Count - 1].cellPosition);
         if (cells[cells.Count - 1].number > 0)
         {
             indexOfFirstCellOutOffNumberList = cells.Count;
-            Debug.Log(cells.Count);
-            Debug.Log(indexOfFirstCellOutOffNumberList);
         }
         else
         {
@@ -213,24 +195,9 @@ public class BoardManager : MonoBehaviour
 
                 Cell cell = new Cell(button);
 
-                int cellPositionY;
-                if ((indexOfFirstCellOutOffNumberList + 1) % cols == 0)
-                {
-                    cellPositionY = cols;
-                }
-                else
-                {
-                    cellPositionY = (indexOfFirstCellOutOffNumberList + 1) % cols;
-                }
-                int cellPositionX;
-                if (cellPositionY == cols)
-                {
-                    cellPositionX = (indexOfFirstCellOutOffNumberList + 1) / cols;
-                }
-                else
-                {
-                    cellPositionX = (indexOfFirstCellOutOffNumberList + 1) / cols + 1;
-                }
+                int cellPositionX = indexOfFirstCellOutOffNumberList / cols + 1;
+                int cellPositionY = indexOfFirstCellOutOffNumberList % cols + 1;
+                
 
                 Vector2Int cellPosition = new Vector2Int(cellPositionX, cellPositionY);
                 cell.cellPosition = cellPosition;
@@ -240,10 +207,9 @@ public class BoardManager : MonoBehaviour
                 cells.Add(cell);
 
                 ++indexOfFirstCellOutOffNumberList;
-                Debug.Log(cellPosition);
                 Debug.Log("Hết cell, cần tạo cell");
             }
-            else 
+            else
             {
                 Debug.Log($"index of first number out off list" + indexOfFirstCellOutOffNumberList);
                 Debug.Log($"số cần thêm" + i);

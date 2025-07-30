@@ -5027,6 +5027,7 @@ GameObject:
   - component: {fileID: 8023905847805706490}
   - component: {fileID: 7903662979014791999}
   - component: {fileID: 8446526237584267651}
+  - component: {fileID: 7585047639715915471}
   m_Layer: 5
   m_Name: CellPrefab
   m_TagString: Untagged
@@ -5169,3 +5170,15 @@ MonoBehaviour:
     cellPosition: {x: 0, y: 0}
     isMatched: 0
     matchingEffect: {fileID: 2280971667604333371}
+--- !u!225 &7585047639715915471
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8430816809334785984}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
