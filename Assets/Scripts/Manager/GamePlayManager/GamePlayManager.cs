@@ -20,6 +20,7 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] BoardManager boardManager;
     [SerializeField] AudioManager audioManager;
     [SerializeField] ScoreManager scoreManager;
+    [SerializeField] GameObject inputHandlePanle;
 
     [Header("Match cell variable")]
     [SerializeField] CellClickHandler firstCell;
@@ -40,6 +41,10 @@ public class GamePlayManager : MonoBehaviour
     [Header("Board manager variable")]
     [SerializeField] int rowCanClear1 = 0;
     [SerializeField] int rowCanClear2 = 0;
+    [SerializeField] Cell startCellInClearRow1;
+    [SerializeField] Cell endCellInClearRow1;
+    [SerializeField] Cell startCellInClearRow2;
+    [SerializeField] Cell endCellInClearRow2;
 
     public void Init()
     {
@@ -61,7 +66,7 @@ public class GamePlayManager : MonoBehaviour
         audioManager = GameManager.instance.audioManager;
         gridAnimation = GameManager.instance.uIManager.gridAnimation;
         cells = GameManager.instance.boardManager.cells;
-
+        inputHandlePanle = uIManager.inputHandlePanle;
     }
 
     public void OnCellClick(CellClickHandler _clicker)
@@ -80,7 +85,7 @@ public class GamePlayManager : MonoBehaviour
             {
                 if (RightWay(firstCell.cell, secondCell.cell))
                 {
-                    HandlingWhenMatching(firstCell.cell, secondCell.cell);
+                    StartCoroutine(HandlingWhenMatching(firstCell.cell, secondCell.cell));
                 }
                 else
                 {
@@ -97,7 +102,6 @@ public class GamePlayManager : MonoBehaviour
             }
         }
     }
-
     void HightLightCell(Cell _cell)
     {
         _cell.button.GetComponent<Image>().color = ColorPalette.buleMint;
@@ -209,10 +213,13 @@ public class GamePlayManager : MonoBehaviour
         }
         return false;
     }
-    void HandlingWhenMatching(Cell _cell1, Cell _cell2)
+    IEnumerator HandlingWhenMatching(Cell _cell1, Cell _cell2)
     {
-        HandleCell(_cell1, _cell2);
+        // Lock input
+        inputHandlePanle.SetActive(true);
 
+        // Handle clear cell
+        HandleCell(_cell1, _cell2);
         if (isSingleLine)
         {
             DrawnOneLine(_cell1, _cell2);
@@ -222,39 +229,59 @@ public class GamePlayManager : MonoBehaviour
             DrawnDoubleLine(_cell1, _cell2, gridAnimation.GetComponent<RectTransform>());
         }
         
+        // Handle clear rows
         if (IsCleanedRows(_cell1, _cell2))
         {
+            yield return new WaitForSeconds(0.6f);
             if (rowCanClear1 > 0 && rowCanClear2 > 0)
             {
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow1, endCellInClearRow1);
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow2, endCellInClearRow2);
                 if (rowCanClear1 > rowCanClear2)
                 {
                     audioManager.PlayCountDownClearRowOneShot();
-                    HandleClearRow(rowCanClear1);
-                    HandleClearRow(rowCanClear2);
+                    boardManager.HandleClearRow(rowCanClear1);
+                    boardManager.HandleClearRow(rowCanClear2);
                 }
                 else
                 {
                     audioManager.PlayCountDownClearRowOneShot();
-                    HandleClearRow(rowCanClear2);
-                    HandleClearRow(rowCanClear1);
+                    boardManager.HandleClearRow(rowCanClear2);
+                    boardManager.HandleClearRow(rowCanClear1);
                 }
             }
             else
             {
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow1, endCellInClearRow1);
                 audioManager.PlayCountDownClearRowOneShot();
                 if (rowCanClear1 > 0)
                 {
-                    HandleClearRow(rowCanClear1);
+                    boardManager.HandleClearRow(rowCanClear1);
                 }
                 if (rowCanClear2 > 0)
                 {
-                    HandleClearRow(rowCanClear2);
+                    boardManager.HandleClearRow(rowCanClear2);
                 }
             }
         }
 
-        scoreManager.AddScoreHandle(addScore, firstCell.cell, secondCell.cell);
+        // Handle clear number
+        playingPanle.UpdateCountNumbers(_cell1.number, _cell2.number);
+        if (playingPanle.countNumber[_cell1.number] == 0)
+        {
+            yield return new WaitForSeconds(1.2f);
+            ClearNumberHandle((_cell1));
+        }
+        if (playingPanle.countNumber[_cell2.number] == 0 && _cell1.number != _cell2.number)
+        {
+            yield return new WaitForSeconds(0.2f);
+            ClearNumberHandle((_cell2));
+        }
+
         firstCell = secondCell = null;
+
+        // Unlock input
+        inputHandlePanle.SetActive(false);
     }
     void HandleCell(Cell _cell1, Cell _cell2)
     {
@@ -265,6 +292,7 @@ public class GamePlayManager : MonoBehaviour
         _cell2.button.interactable = false;
         _cell1.isMatched = true;
         _cell2.isMatched = true;
+        scoreManager.AddScoreHandle(addScore, _cell1, _cell2);
     }
     void BlurCell(Cell _cell1, Cell _cell2)
     {
@@ -304,6 +332,13 @@ public class GamePlayManager : MonoBehaviour
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, rectTransform.position, null, out Vector2 localPosition);
         return localPosition;
+    }
+    void ClearNumberHandle(Cell _cell)
+    {
+        Cell clearNumberCell = playingPanle.clearedNumbers[_cell.number - 1];
+        clearNumberCell.button.GetComponent<CanvasGroup>().alpha = 0.4f;
+        scoreManager.AddScoreHandle(scoreManager.clearnumberScore, clearNumberCell, clearNumberCell);
+        audioManager.PlayClearNumberOneShot();
     }
     void HandlingWhenNotMatching(Cell _cell1, Cell _cell2)
     {
@@ -442,7 +477,8 @@ public class GamePlayManager : MonoBehaviour
 
     public void AddNumbersButtonCleckEvent()
     {
-        boardManager.GenerateCell();
+        boardManager.DuplicateCellsNotMatching();
+        playingPanle.DuplicateCountNumber();
         addNunbersNumber -= 1;
         playingPanle.SetAddNumberText(addNunbersNumber, addNunbersNumber == 0);
     }
@@ -467,12 +503,12 @@ public class GamePlayManager : MonoBehaviour
 
         if (row1 != row2)
         {
-            bool isClearRow1 = IsClearRow(row1);
+            bool isClearRow1 = IsClearRow(row1, 1);
             if (isClearRow1)
             {
                 rowCanClear1 = row1;
             }
-            bool isClearRow2 = IsClearRow(row2);
+            bool isClearRow2 = IsClearRow(row2, 2);
             if (isClearRow2)
             {
                 rowCanClear2 = row2;
@@ -481,7 +517,7 @@ public class GamePlayManager : MonoBehaviour
         }
         else if (row1 == row2)
         {
-            bool isClearRow1 = IsClearRow(row1);
+            bool isClearRow1 = IsClearRow(row1, 1);
             if (isClearRow1)
             {
                 rowCanClear1 = row1;
@@ -491,7 +527,7 @@ public class GamePlayManager : MonoBehaviour
 
         return false;
     }
-    bool IsClearRow(int _row)
+    bool IsClearRow(int _row, byte _loop)
     {
         int countMatchingCell = 0;
         Vector2Int startPosition = new Vector2Int(_row, 1);
@@ -500,8 +536,21 @@ public class GamePlayManager : MonoBehaviour
         {
             if (cells[i].cellPosition == startPosition)
             {
-                startIndex = i;
-                break;
+
+                if (_loop == 1)
+                {
+                    startIndex = i;
+                    startCellInClearRow1 = cells[i];
+                    endCellInClearRow1 = cells[i + boardManager.cols - 1];
+                    break;
+                }
+                else
+                {
+                    startIndex = i;
+                    startCellInClearRow2 = cells[i];
+                    endCellInClearRow2 = cells[i + boardManager.cols - 1];
+                    break;
+                }
             }
         }
 
@@ -512,60 +561,8 @@ public class GamePlayManager : MonoBehaviour
                 countMatchingCell += 1;
             }
         }
-
         return countMatchingCell == boardManager.cols;
     }
 
-    void HandleClearRow(int _rowNumber)
-    {
-        boardManager.AddOneRow();
-        List<Cell> cellToRemove = new List<Cell>();
-        foreach (var cell in cells)
-        {
-            if (cell.cellPosition.x == _rowNumber)
-            {
-                cellToRemove.Add(cell);
-            }
-            else if (cell.cellPosition.x > _rowNumber)
-            {
-                cell.cellPosition.x -= 1;
-            }
-        }
-
-        ClearRowAnimation(cellToRemove);
-
-        foreach (var cell in cellToRemove)
-        {
-            cells.Remove(cell);
-        }
-    }
-    void ClearRowAnimation(List<Cell> _cells)
-    {
-        foreach (var cell in _cells)
-        {
-            DG.Tweening.Sequence sequene = DOTween.Sequence();
-
-            RectTransform rectTransform = cell.button.GetComponent<RectTransform>();
-            CanvasGroup canvasGroup = cell.button.GetComponent<CanvasGroup>();
-
-            sequene.Append(rectTransform.DOShakeAnchorPos
-                (
-                duration: 0.3f,
-                strength: new Vector2(10f, 10f),
-                vibrato: 10,
-                randomness: 90,
-                snapping: false,
-                fadeOut: true
-                ));
-
-            sequene.Append(rectTransform.DOScale(1.5f, 0.3f).SetEase(Ease.OutQuad));
-            sequene.Join(canvasGroup.DOFade(0f, 0.3f));
-
-            sequene.OnComplete(() =>
-            {
-                audioManager.PlayClearRowOneShot();
-                Destroy(cell.button.gameObject);
-            });
-        }
-    }
+    
 }

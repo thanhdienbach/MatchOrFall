@@ -20,6 +20,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioClip countDownClearRow;
     [SerializeField] AudioClip clearRown;
 
+    [SerializeField] AudioClip clearNumber;
+
     public void Init()
     {
         
@@ -87,5 +89,9 @@ public class AudioManager : MonoBehaviour
     public void PlayClearRowOneShot()
     {
         gameAudioSource.PlayOneShot(clearRown);
+    }
+    public void PlayClearNumberOneShot()
+    {
+        gameAudioSource.PlayOneShot(clearNumber);
     }
 }

@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
     public GridAnimation gridAnimation;
     public MyUILineRenderer uILineRenderer1;
     public MyUILineRenderer uILineRenderer2;
+    public GameObject inputHandlePanle;
 
     public void Init()
     {
@@ -36,6 +37,8 @@ public class UIManager : MonoBehaviour
         
         uILineRenderer1.Init();
         uILineRenderer2.Init();
+
+        inputHandlePanle.SetActive(false);
     }
 
 }

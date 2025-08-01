@@ -12,12 +12,13 @@ public class ScoreManager : MonoBehaviour
     [Header("Score variable")]
     public int currentScore;
     [SerializeField] int addScore;
+    public int clearRowScore = 10;
+    public int clearnumberScore = 10;
     [SerializeField] GameObject scorePopupPrefabs;
 
     public void Init()
     {
         currentScore = 0;
-        addScore = 0;
 
         playingPanle = GameManager.instance.uIManager.playingPanle;
     }
@@ -30,7 +31,6 @@ public class ScoreManager : MonoBehaviour
         Vector2 midWorldPoint = CalulatePoitToShowScore(_cell1, _cell2);
         ShowScoreAt(midWorldPoint, _value);
 
-        addScore = 0;
     }
     Vector2 CalulatePoitToShowScore(Cell _cell1, Cell _cell2)
     {
