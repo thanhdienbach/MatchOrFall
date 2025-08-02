@@ -17,10 +17,17 @@ public class PlayingPanle : MonoBehaviour
     [SerializeField] TMP_Text scoreText;
 
     [SerializeField] TMP_Text hopeText;
-    [SerializeField] Button hopeButton;
+    public Button hopeButton;
 
     [SerializeField] TMP_Text addNumbersText;
     [SerializeField] Button addNumbersButton;
+
+    public Slider comboSlider;
+
+    [SerializeField] TMP_Text roundText;
+    [SerializeField] TMP_Text hightScoreText;
+
+    public List<Button> bonusButtonList;
 
     public void Init()
     {
@@ -29,7 +36,7 @@ public class PlayingPanle : MonoBehaviour
 
     public void SetScoreText(int _value)
     {
-        scoreText.text = "Score: " + _value;
+        scoreText.text = _value.ToString();
     }
     public void SetHopeText(int _value, bool _isZero)
     {
@@ -75,6 +82,11 @@ public class PlayingPanle : MonoBehaviour
         {
             Debug.Log("Clear number:" + _number2);
         }
+    }
+
+    public void UpdateSlider(float _value)
+    {
+        comboSlider.value = _value;
     }
 
 }
