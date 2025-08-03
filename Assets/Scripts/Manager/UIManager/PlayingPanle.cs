@@ -64,7 +64,7 @@ public class PlayingPanle : MonoBehaviour
     }
     public void DuplicateCountNumber()
     {
-        for (int i = 0; i < countNumber.Count; i++)
+        for (int i = 0; i < countNumber.Count - 1; i++)
         {
             countNumber[i + 1] *= 2;
         }

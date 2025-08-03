@@ -41,9 +41,9 @@ public class GameManager : MonoBehaviour
 
         uIManager.Init();
 
-        boardManager.Init();
-
         gamePlayManager.Init();
+
+        boardManager.Init();
     }
 
 }

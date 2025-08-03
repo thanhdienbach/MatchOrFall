@@ -62,7 +62,7 @@ public class GamePlayManager : MonoBehaviour
     public void Init()
     {
 
-        hopeNumber = 10;
+        hopeNumber = 30;
         addNunbersNumber = 5;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
 
@@ -149,7 +149,7 @@ public class GamePlayManager : MonoBehaviour
         }
         return false;
     }
-    bool Adjacent(Cell _cell1, Cell _cell2)
+    public bool Adjacent(Cell _cell1, Cell _cell2)
     {
         isSingleLine = true;
         addScore = 1;
@@ -182,7 +182,7 @@ public class GamePlayManager : MonoBehaviour
         }
         return true;
     }
-    Cell GetCellAt(Vector2Int _position)
+    public Cell GetCellAt(Vector2Int _position)
     {
         foreach(var cell in cells)
         {
@@ -479,7 +479,7 @@ public class GamePlayManager : MonoBehaviour
 
         return false ;
     }
-    bool IsOnGrid(Vector2Int _position)
+    public bool IsOnGrid(Vector2Int _position)
     {
         return _position.x > 0 && _position.y > 0 && _position.x < cells.Count / GameManager.instance.boardManager.cols && _position.y <= GameManager.instance.boardManager.cols;
     }

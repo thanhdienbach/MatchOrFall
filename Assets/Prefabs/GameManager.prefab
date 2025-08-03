@@ -882,7 +882,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7297244437042073928
 CanvasRenderer:
@@ -1661,7 +1661,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1160658016276504594
 CanvasRenderer:
@@ -4024,12 +4024,14 @@ MonoBehaviour:
   playingBoardGridLayoutGroup: {fileID: 6485743079977283976}
   playingPanle: {fileID: 0}
   audioManager: {fileID: 0}
+  gamePlayManager: {fileID: 0}
   cells: []
   cellPrefabs: {fileID: 8430816809334785984, guid: d2b06acfc57dc274b929e540553d6afa, type: 3}
   gridParent: {fileID: 8952051544074771520}
   cols: 9
   startFilledCell: 0
   maxNumber: 0
+  randomNumber: 
   cellFullPlace: 0
   cellPlace: 0
   spaceOfCell: 1

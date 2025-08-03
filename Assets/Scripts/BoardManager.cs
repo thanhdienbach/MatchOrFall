@@ -15,6 +15,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] GridLayoutGroup playingBoardGridLayoutGroup;
     [SerializeField] PlayingPanle playingPanle;
     [SerializeField] AudioManager audioManager;
+    [SerializeField] GamePlayManager gamePlayManager;
 
     [Header("Gameobject")]
     public List<Cell> cells = new List<Cell>();
@@ -35,7 +36,19 @@ public class BoardManager : MonoBehaviour
     [Header("Add numbers variable")]
     [SerializeField] List<Cell> addNumbers;
     [SerializeField] int maxRowCanShowInBoard = 12; // Todo: Caculate to scale board
- 
+    [SerializeField] List<int> randomNumbers = new List<int>();
+    Vector2Int[] directions = new Vector2Int[]
+    {
+        new Vector2Int (-1 ,-1),
+        new Vector2Int (-1 ,0),
+        new Vector2Int (-1 ,1),
+        new Vector2Int (0 , -1),
+        new Vector2Int (0 , 1),
+        new Vector2Int (1 , -1),
+        new Vector2Int (1, 0),
+        new Vector2Int (1, 1)
+    };
+
 
     public void Init()
     {
@@ -45,10 +58,13 @@ public class BoardManager : MonoBehaviour
 
         audioManager = GameManager.instance.audioManager;
         playingPanle = GameManager.instance.uIManager.playingPanle;
+        gamePlayManager = GameManager.instance.gamePlayManager;
+
         SetUpLayOutGrid();
         GeneratePlayingBoard();
+        FillNumberWithDifficuiltValue(1);
         GenerateClearNumbersBoard();
-        FillRandomNumber(CreatRandomPairNumbers());
+        GetValueToClearNumberList();
     }
 
 
@@ -101,67 +117,58 @@ public class BoardManager : MonoBehaviour
             playingPanle.countNumber[i + 1] = 0;
         }
     }
-    void FillRandomNumber(List<int> _numbers)
+    void GetValueToClearNumberList()
+    {
+        foreach (var cell in cells)
+        {
+            if (cell.number == 0)
+            {
+                break;
+            }
+            playingPanle.countNumber[cell.number]++;
+        }
+    }
+    void FillNumberWithDifficuiltValue(int _difficuiltValue)
     {
         for (int i = 0; i < cells.Count; i++)
         {
             if (i < startFilledCell)
             {
-                cells[i].number = _numbers[i];
-                cells[i].button.GetComponentInChildren<TMP_Text>().text = _numbers[i].ToString();
+                for (int j = 0; j < _difficuiltValue; j++)
+                {
+                    int countCheckLoop = 0;
+
+                    int randomNumber = Random.Range(1, maxNumber + 1);
+                    cells[i].number = randomNumber;
+                    cells[i].button.GetComponentInChildren<TMP_Text>().text = randomNumber.ToString();
+
+                    foreach (var direction in directions)
+                    {
+                        Vector2Int position = cells[i].cellPosition + direction;
+                        if (gamePlayManager.IsOnGrid(position))
+                        {
+                            Cell cell = gamePlayManager.GetCellAt(position);
+                            if (cell.number != cells[i].number && cell.number + cells[i].number != maxNumber + 1)
+                            {
+                                countCheckLoop++;
+                            }
+                        }
+                        else
+                        {
+                            countCheckLoop++;
+                        }
+                    }
+                    if (countCheckLoop == 8)
+                    {
+                        j = _difficuiltValue;
+                    }
+                }
             }
             else
             {
                 cells[i].button.GetComponentInChildren<TMP_Text>().text = "";
                 cells[i].button.interactable = false;
             }
-        }
-    }
-    List<int> CreatRandomPairNumbers()
-    {
-        
-        List<int> numbers = new List<int>();
-        
-
-        for (int i = 0; i < startFilledCell; i += 2)
-        {
-            int randomNumber;
-
-            if (i / 2 < maxNumber)
-            {
-                randomNumber = i / 2 + 1;
-            }
-            else
-            {
-                randomNumber = Random.Range(1, maxNumber + 1);
-            }
-            numbers.Add(randomNumber);
-            playingPanle.countNumber[randomNumber]++;
-
-            int randomComdition = Random.Range(0, 2);
-            if (randomComdition == 0)
-            {
-                numbers.Add(randomNumber);
-                playingPanle.countNumber[randomNumber]++;
-            }
-            else
-            {
-                int addNumber = (maxNumber + 1) - randomNumber;
-                numbers.Add(addNumber);
-                playingPanle.countNumber[addNumber]++;
-            }
-        }
-
-        Shuffle(numbers);
-
-        return numbers;
-    }
-    void Shuffle(List<int> _numbers)
-    {
-        for (int i = 0; i < _numbers.Count; i++)
-        {
-            int randomIndex = Random.Range(0, _numbers.Count);
-            (_numbers[i], _numbers[randomIndex]) = (_numbers[randomIndex], _numbers[i]);
         }
     }
 
@@ -306,4 +313,5 @@ public class BoardManager : MonoBehaviour
             Destroy(cell.button.gameObject);
         });
     }
+
 }
