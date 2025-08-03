@@ -12,7 +12,6 @@ public class ScoreManager : MonoBehaviour
 
     [Header("Score variable")]
     public int currentScore;
-    [SerializeField] int addScore;
     public int clearRowScore = 10;
     public int clearnumberScore = 10;
     [SerializeField] GameObject scorePopupPrefabs;

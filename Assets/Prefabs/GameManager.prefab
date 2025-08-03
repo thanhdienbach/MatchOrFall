@@ -2231,7 +2231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6361963731400006299
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3702,6 +3702,7 @@ MonoBehaviour:
   currentComboSroce: 0
   comboScore: 0
   nextTimeStartCountDownComboScore: 3.4028235e+38
+  handlescore: 0
 --- !u!114 &5881363994305274426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4031,12 +4032,12 @@ MonoBehaviour:
   cols: 9
   startFilledCell: 0
   maxNumber: 0
-  randomNumber: 
   cellFullPlace: 0
   cellPlace: 0
   spaceOfCell: 1
   addNumbers: []
   maxRowCanShowInBoard: 12
+  randomNumbers: 
 --- !u!1 &8846902166505477687
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,7 +24,7 @@ public class PlayingPanle : MonoBehaviour
 
     public Slider comboSlider;
 
-    [SerializeField] TMP_Text roundText;
+    public TMP_Text roundText;
     [SerializeField] TMP_Text hightScoreText;
 
     public List<Button> bonusButtonList;
@@ -64,7 +64,7 @@ public class PlayingPanle : MonoBehaviour
     }
     public void DuplicateCountNumber()
     {
-        for (int i = 0; i < countNumber.Count - 1; i++)
+        for (int i = 0; i < countNumber.Count; i++)
         {
             countNumber[i + 1] *= 2;
         }
@@ -74,14 +74,6 @@ public class PlayingPanle : MonoBehaviour
     {
         countNumber[_number1]--;
         countNumber[_number2]--;
-        if (countNumber[_number1] == 0)
-        {
-            
-        }
-        if (countNumber[_number2] == 0 && _number1 != _number2)
-        {
-            Debug.Log("Clear number:" + _number2);
-        }
     }
 
     public void UpdateSlider(float _value)

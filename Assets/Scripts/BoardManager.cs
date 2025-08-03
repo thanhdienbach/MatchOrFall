@@ -6,6 +6,7 @@ using Unity.VisualScripting.Antlr3.Runtime;
 using Unity.VisualScripting;
 using DG.Tweening;
 using System.Linq;
+using System.Collections;
 
 public class BoardManager : MonoBehaviour
 {
@@ -49,9 +50,13 @@ public class BoardManager : MonoBehaviour
         new Vector2Int (1, 1)
     };
 
+    [Header("Other")]
+    public float nextTimeCanCheckClearRound;
+    public float pendingTime = 10.0f;
 
     public void Init()
     {
+        nextTimeCanCheckClearRound = pendingTime + Time.deltaTime;
         cols = gridConfig.cols;
         startFilledCell = gridConfig.startFilledCell;
         maxNumber = gridConfig.maxValueNumber;
@@ -62,9 +67,8 @@ public class BoardManager : MonoBehaviour
 
         SetUpLayOutGrid();
         GeneratePlayingBoard();
-        FillNumberWithDifficuiltValue(1);
+        StartCoroutineFillNumberWithDifficuiltValue(1);
         GenerateClearNumbersBoard();
-        GetValueToClearNumberList();
     }
 
 
@@ -93,7 +97,6 @@ public class BoardManager : MonoBehaviour
         for (int i = 0; i < cols * rows; i++) // (startFilledCell / cols + 4) * cols
         {
             AddEmptyCell(i, cells, playingBoardGridLayoutGroup);
-            cells[i].button.interactable = true;
         }
     }
     void GenerateClearNumbersBoard()
@@ -117,7 +120,14 @@ public class BoardManager : MonoBehaviour
             playingPanle.countNumber[i + 1] = 0;
         }
     }
-    void GetValueToClearNumberList()
+    public void AwakeClearNumbersBoard()
+    {
+        for (int i = 0; i < gridConfig.maxValueNumber;i++)
+        {
+            playingPanle.clearedNumbers[i].button.GetComponent<CanvasGroup>().alpha = 1.0f;
+        }
+    }
+    public void GetValueToClearNumberList()
     {
         foreach (var cell in cells)
         {
@@ -128,7 +138,11 @@ public class BoardManager : MonoBehaviour
             playingPanle.countNumber[cell.number]++;
         }
     }
-    void FillNumberWithDifficuiltValue(int _difficuiltValue)
+    public void StartCoroutineFillNumberWithDifficuiltValue(int _value)
+    {
+        StartCoroutine(FillNumberWithDifficuiltValue(_value));
+    }
+    public IEnumerator FillNumberWithDifficuiltValue(int _difficuiltValue)
     {
         for (int i = 0; i < cells.Count; i++)
         {
@@ -140,7 +154,9 @@ public class BoardManager : MonoBehaviour
 
                     int randomNumber = Random.Range(1, maxNumber + 1);
                     cells[i].number = randomNumber;
-                    cells[i].button.GetComponentInChildren<TMP_Text>().text = randomNumber.ToString();
+                    PlayButtonSwapEffect(cells[i], randomNumber);
+                    cells[i].button.interactable = true;
+                    // cells[i].button.GetComponentInChildren<TMP_Text>().text = randomNumber.ToString();
 
                     foreach (var direction in directions)
                     {
@@ -163,6 +179,7 @@ public class BoardManager : MonoBehaviour
                         j = _difficuiltValue;
                     }
                 }
+                yield return new WaitForSeconds(Time.fixedDeltaTime);
             }
             else
             {
@@ -170,8 +187,17 @@ public class BoardManager : MonoBehaviour
                 cells[i].button.interactable = false;
             }
         }
+        GetValueToClearNumberList();
     }
+    void PlayButtonSwapEffect(Cell cell, int _number)
+    {
+        DG.Tweening.Sequence sequence = DOTween.Sequence();
 
+        sequence.Append(cell.button.GetComponentInChildren<CanvasGroup>().DOFade(0f, 0.25f));
+        sequence.AppendCallback(() => { cell.button.GetComponentInChildren<TMP_Text>().text = _number.ToString(); });
+
+        sequence.Append(cell.button.GetComponentInChildren<CanvasGroup>().DOFade(1f, 0.25f));
+    }
     /// <summary>
     /// Duplicate cells have isMatching = false and update countnumber(Dictionary)
     /// </summary>

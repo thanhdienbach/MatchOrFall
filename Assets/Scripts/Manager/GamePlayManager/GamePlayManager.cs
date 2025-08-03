@@ -59,10 +59,13 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] float comboScore = 0;
     [SerializeField] float nextTimeStartCountDownComboScore = float.MaxValue;
 
+    [Header("Game state variable")]
+    [SerializeField] bool handlescore = false;
+
     public void Init()
     {
 
-        hopeNumber = 30;
+        hopeNumber = 100;
         addNunbersNumber = 5;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
 
@@ -152,14 +155,14 @@ public class GamePlayManager : MonoBehaviour
     public bool Adjacent(Cell _cell1, Cell _cell2)
     {
         isSingleLine = true;
-        addScore = 1;
+        addScore = 1 * round;
 
         return Math.Abs(_cell1.cellPosition.x - _cell2.cellPosition.x) <= 1 && Math.Abs(_cell1.cellPosition.y - _cell2.cellPosition.y) <= 1;
     }
     bool ClearPath(Cell _cell1, Cell _cell2)
     {
         isSingleLine = true;
-        addScore = 4;
+        addScore = 4 * round;
 
         int dx = Math.Sign(_cell2.cellPosition.x - _cell1.cellPosition.x);
         int dy = Math.Sign(_cell2.cellPosition.y - _cell1.cellPosition.y);
@@ -196,7 +199,7 @@ public class GamePlayManager : MonoBehaviour
     bool ClearPathDifferentRow(Cell _cell1, Cell _cell2)
     {
         isSingleLine = false;
-        addScore = 4;
+        addScore = 4 * round;
 
         Cell temp = _cell2;
         _cell2 = _cell1;
@@ -231,6 +234,7 @@ public class GamePlayManager : MonoBehaviour
     {
         // Lock input
         inputHandlePanle.SetActive(true);
+        handlescore = true;
 
         // Handle clear cell
         HandleCell(_cell1, _cell2);
@@ -249,10 +253,10 @@ public class GamePlayManager : MonoBehaviour
             yield return new WaitForSeconds(0.6f);
             if (rowCanClear1 > 0 && rowCanClear2 > 0)
             {
-                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow1.button, endCellInClearRow1.button);
-                currentComboSroce = scoreManager.clearRowScore + currentComboSroce;
-                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow2.button, endCellInClearRow2.button);
-                currentComboSroce = scoreManager.clearRowScore + currentComboSroce;
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore * round, startCellInClearRow1.button, endCellInClearRow1.button);
+                currentComboSroce = scoreManager.clearRowScore * round + currentComboSroce;
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore * round, startCellInClearRow2.button, endCellInClearRow2.button);
+                currentComboSroce = scoreManager.clearRowScore * round + currentComboSroce;
                 comboScore = currentComboSroce;
                 nextTimeStartCountDownComboScore = countDownTime * 2 + Time.time;
                 playingPanle.UpdateSlider(currentComboSroce);
@@ -271,8 +275,8 @@ public class GamePlayManager : MonoBehaviour
             }
             else
             {
-                scoreManager.AddScoreHandle(scoreManager.clearRowScore, startCellInClearRow1.button, endCellInClearRow1.button);
-                currentComboSroce = scoreManager.clearRowScore + currentComboSroce;
+                scoreManager.AddScoreHandle(scoreManager.clearRowScore * round, startCellInClearRow1.button, endCellInClearRow1.button);
+                currentComboSroce = scoreManager.clearRowScore * round + currentComboSroce;
                 comboScore = currentComboSroce;
                 nextTimeStartCountDownComboScore = countDownTime + Time.time;
                 playingPanle.UpdateSlider(currentComboSroce);
@@ -301,16 +305,17 @@ public class GamePlayManager : MonoBehaviour
             ClearNumberHandle((_cell2));
         }
 
+        // unlock input
         inputHandlePanle.SetActive(false);
+        handlescore = false;
 
         if (currentComboSroce > 1)
         {
+            handlescore = true;
             CheckComboBonus();
         }
 
         firstCell = secondCell = null;
-
-        // Unlock input
         
     }
     void HandleCell(Cell _cell1, Cell _cell2)
@@ -371,8 +376,8 @@ public class GamePlayManager : MonoBehaviour
     {
         Cell clearNumberCell = playingPanle.clearedNumbers[_cell.number - 1];
         clearNumberCell.button.GetComponent<CanvasGroup>().alpha = 0.4f;
-        scoreManager.AddScoreHandle(scoreManager.clearnumberScore, clearNumberCell.button, clearNumberCell.button);
-        currentComboSroce = scoreManager.clearnumberScore + currentComboSroce;
+        scoreManager.AddScoreHandle(scoreManager.clearnumberScore * round, clearNumberCell.button, clearNumberCell.button);
+        currentComboSroce = scoreManager.clearnumberScore * round + currentComboSroce;
         comboScore = currentComboSroce;
         nextTimeStartCountDownComboScore = countDownTime + Time.time;
         playingPanle.UpdateSlider(currentComboSroce);
@@ -604,6 +609,15 @@ public class GamePlayManager : MonoBehaviour
 
     private void Update()
     {
+        SetComboStatus();
+        if (handlescore == false && boardManager.nextTimeCanCheckClearRound < Time.time)
+        {
+            CheckGameStatus();
+        }
+    }
+
+    void SetComboStatus()
+    {
         if (Time.time > nextTimeStartCountDownComboScore)
         {
             CountDownComboScore();
@@ -620,7 +634,6 @@ public class GamePlayManager : MonoBehaviour
                 button.interactable = false;
             }
         }
-        
     }
 
     void CountDownComboScore()
@@ -631,41 +644,50 @@ public class GamePlayManager : MonoBehaviour
     }
     void CheckComboBonus()
     {
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.2 && !playingPanle.bonusButtonList[0].interactable)
+        if (currentComboSroce >= playingPanle.comboSlider.maxValue && !playingPanle.bonusButtonList[4].interactable)
         {
-            playingPanle.bonusButtonList[0].interactable = true;
-            scoreManager.AddScoreHandle(scoreManager.bonus1Score, playingPanle.bonusButtonList[0], playingPanle.bonusButtonList[0]);
-        }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.4 && !playingPanle.bonusButtonList[1].interactable)
-        {
-            playingPanle.bonusButtonList[1].interactable = true;
-            scoreManager.AddScoreHandle(scoreManager.bonus2Score, playingPanle.bonusButtonList[1], playingPanle.bonusButtonList[1]);
-        }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.6 && !playingPanle.bonusButtonList[2].interactable)
-        {
-            playingPanle.bonusButtonList[2].interactable = true;
-            UpdateHope(scoreManager.bonus1Hope);
-            scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus1Hope, playingPanle.bonusButtonList[2], playingPanle.bonusButtonList[2]);
+            playingPanle.bonusButtonList[4].interactable = true;
+            StartCoroutine(MaxComboBonus());
+            return;
         }
         if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.8 && !playingPanle.bonusButtonList[3].interactable)
         {
             playingPanle.bonusButtonList[3].interactable = true;
             UpdateHope(scoreManager.bonus2Hope);
             scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus2Hope, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[3]);
+            handlescore = false;
+            return;
         }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue && !playingPanle.bonusButtonList[4].interactable)
+        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.6 && !playingPanle.bonusButtonList[2].interactable)
         {
-            playingPanle.bonusButtonList[4].interactable = true;
-            StartCoroutine(MaxComboBonus());
+            playingPanle.bonusButtonList[2].interactable = true;
+            UpdateHope(scoreManager.bonus1Hope);
+            scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus1Hope, playingPanle.bonusButtonList[2], playingPanle.bonusButtonList[2]);
+            handlescore = false;
+            return;
+        }
+        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.4 && !playingPanle.bonusButtonList[1].interactable)
+        {
+            playingPanle.bonusButtonList[1].interactable = true;
+            scoreManager.AddScoreHandle(scoreManager.bonus2Score * round, playingPanle.bonusButtonList[1], playingPanle.bonusButtonList[1]);
+            handlescore = false;
+            return;
+        }
+        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.2 && !playingPanle.bonusButtonList[0].interactable)
+        {
+            playingPanle.bonusButtonList[0].interactable = true;
+            scoreManager.AddScoreHandle(scoreManager.bonus1Score * round, playingPanle.bonusButtonList[0], playingPanle.bonusButtonList[0]);
+            handlescore = false;
+            return;
         }
     }
     IEnumerator MaxComboBonus()
     {
         inputHandlePanle.SetActive(true);
 
-        scoreManager.ShowScoreAndCountUpScoreAtMidTowPoint(scoreManager.extraScore, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[4]);
+        scoreManager.ShowScoreAndCountUpScoreAtMidTowPoint(scoreManager.extraScore * round, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[4]);
         yield return new WaitForSeconds(2);
-        scoreManager.currentScore += scoreManager.extraScore;
+        scoreManager.currentScore += scoreManager.extraScore * round;
         playingPanle.SetScoreText(scoreManager.currentScore);
 
         for (int i = 0; i < scoreManager.extraHope; i++)
@@ -677,5 +699,52 @@ public class GamePlayManager : MonoBehaviour
         }
         comboScore = 0;
         inputHandlePanle.SetActive(false);
+        handlescore = false;
+    }
+    void CheckGameStatus()
+    {
+        boardManager.nextTimeCanCheckClearRound = boardManager.pendingTime + Time.time;
+        handlescore = true;
+        int countClearNumber = 0;
+        for (int i = 0; i < playingPanle.countNumber.Count; i++)
+        {
+            if (playingPanle.countNumber[i + 1] == 0)
+            {
+                countClearNumber++;
+            }
+            if (countClearNumber == maxSum - 1)
+            {
+                ClearGroundHandle();
+            }
+        }
+        if (addNunbersNumber == 0 && !HasPairNumberCanMatching())
+        {
+            Debug.Log("Game over");
+        }
+    }
+    void ClearGroundHandle()
+    {
+        inputHandlePanle.SetActive(true);
+
+        ResetRound();
+
+        boardManager.StartCoroutineFillNumberWithDifficuiltValue(round);
+        boardManager.AwakeClearNumbersBoard();
+
+        playingPanle.comboSlider.maxValue = round * 100;
+
+        ResetAddNumbersNumber();
+
+        inputHandlePanle.SetActive(false);
+    }
+    void ResetRound()
+    {
+        round += 1;
+        playingPanle.roundText.text = round.ToString();
+    }
+    void ResetAddNumbersNumber()
+    {
+        addNunbersNumber += 5 - addNunbersNumber;
+        playingPanle.SetAddNumberText(addNunbersNumber,false);
     }
 }
