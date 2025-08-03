@@ -355,8 +355,19 @@ public class GamePlayManager : MonoBehaviour
     }
     void DrawnDoubleLine(Cell _cell1, Cell _cell2, RectTransform _gridParentTransform)
     {
-        Vector2 cell1Position = GetLocalCenter(_cell1.button.transform as RectTransform);
-        Vector2 cell2Position = GetLocalCenter(_cell2.button.transform as RectTransform);
+        Vector2 cell1Position = new Vector2();
+        Vector2 cell2Position = new Vector2();
+        if (_cell1.cellPosition.x >  _cell2.cellPosition.x)
+        {
+            cell1Position = GetLocalCenter(_cell2.button.transform as RectTransform);
+            cell2Position = GetLocalCenter(_cell1.button.transform as RectTransform);
+        }
+        else
+        {
+             cell1Position = GetLocalCenter(_cell1.button.transform as RectTransform);
+             cell2Position = GetLocalCenter(_cell2.button.transform as RectTransform);
+        }
+        
 
         float rightEdgeX = _gridParentTransform.rect.width / 2;
         float leftEdgeX = -_gridParentTransform.rect.width / 2;
@@ -400,7 +411,7 @@ public class GamePlayManager : MonoBehaviour
             firstCell = null;
         }
         
-        if (HasPairNumberCanMatching())
+        if (HasPairNumberCanMatching(true))
         {
             audioManager.PlayHopeOneShot();
             UpdateHope(-1);
@@ -411,7 +422,7 @@ public class GamePlayManager : MonoBehaviour
             gridAnimation.Ring();
         }
     }
-    bool HasPairNumberCanMatching()
+    bool HasPairNumberCanMatching(bool isPlayerCheck)
     {
         foreach (var cell  in cells)
         {
@@ -425,11 +436,11 @@ public class GamePlayManager : MonoBehaviour
             }
             if (!cell.isMatched)
             {
-                if (HasPathInList(cell))
+                if (HasPathInList(cell, isPlayerCheck))
                 {
                     return true;
                 }
-                else if (HasPathInBoard(cell, cells, maxSum))
+                else if (HasPathInBoard(cell, cells, maxSum, isPlayerCheck))
                 {
                     return true;
                 }
@@ -437,19 +448,9 @@ public class GamePlayManager : MonoBehaviour
         }
         return false;
     }
-    bool HasPathInBoard(Cell _cell, List<Cell> _cells, int _maxSum)
+    bool HasPathInBoard(Cell _cell, List<Cell> _cells, int _maxSum, bool isPlayerCheck)
     {
-        Vector2Int[] directions = new Vector2Int[]
-        {
-            new Vector2Int (-1 ,-1),
-            new Vector2Int (-1 ,0),
-            new Vector2Int (-1 ,1),
-            new Vector2Int (0 , -1),
-            new Vector2Int (0 , 1),
-            new Vector2Int (1 , -1),
-            new Vector2Int (1, 0),
-            new Vector2Int (1, 1)
-        };
+        Vector2Int[] directions = boardManager.directions;
 
         foreach (var direction in directions)
         {
@@ -473,8 +474,11 @@ public class GamePlayManager : MonoBehaviour
                 }
                 if (_cell.number == nextCell.number || _cell.number + nextCell.number == maxSum)
                 {
-                    _cell.button.image.color = ColorPalette.statYellow;
-                    nextCell.button.image.color = ColorPalette.statYellow;
+                    if (isPlayerCheck)
+                    {
+                        _cell.button.image.color = ColorPalette.statYellow;
+                        nextCell.button.image.color = ColorPalette.statYellow;
+                    }
                     return true;
                 }
 
@@ -488,7 +492,7 @@ public class GamePlayManager : MonoBehaviour
     {
         return _position.x > 0 && _position.y > 0 && _position.x < cells.Count / GameManager.instance.boardManager.cols && _position.y <= GameManager.instance.boardManager.cols;
     }
-    bool HasPathInList(Cell _cell)
+    bool HasPathInList(Cell _cell, bool isPlayerCheck)
     {
         for (int i = cells.IndexOf(_cell) + 1; i < cells.Count; i++)
         {
@@ -504,8 +508,11 @@ public class GamePlayManager : MonoBehaviour
 
             if (cells[i].number == _cell.number || cells[i].number + _cell.number == maxSum)
             {
-                cells[i].button.image.color = ColorPalette.statYellow;
-                _cell.button.image.color = ColorPalette.statYellow;
+                if (isPlayerCheck)
+                {
+                    cells[i].button.image.color = ColorPalette.statYellow;
+                    _cell.button.image.color = ColorPalette.statYellow;
+                }
                 return true;
             }
         }
@@ -644,46 +651,54 @@ public class GamePlayManager : MonoBehaviour
     }
     void CheckComboBonus()
     {
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue && !playingPanle.bonusButtonList[4].interactable)
+        List<int> ints = new List<int>() { 20, 40, 60, 80, 100};
+        int point = 0;
+
+        for (int i = 0; i < ints.Count; i++)
         {
-            playingPanle.bonusButtonList[4].interactable = true;
-            StartCoroutine(MaxComboBonus());
-            return;
+            if (currentComboSroce >  ints[i] * round)
+            {
+                point++;
+            }
         }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.8 && !playingPanle.bonusButtonList[3].interactable)
+
+        for (int i = 0; i < point; i++)
         {
-            playingPanle.bonusButtonList[3].interactable = true;
-            UpdateHope(scoreManager.bonus2Hope);
-            scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus2Hope, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[3]);
-            handlescore = false;
-            return;
-        }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.6 && !playingPanle.bonusButtonList[2].interactable)
-        {
-            playingPanle.bonusButtonList[2].interactable = true;
-            UpdateHope(scoreManager.bonus1Hope);
-            scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus1Hope, playingPanle.bonusButtonList[2], playingPanle.bonusButtonList[2]);
-            handlescore = false;
-            return;
-        }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.4 && !playingPanle.bonusButtonList[1].interactable)
-        {
-            playingPanle.bonusButtonList[1].interactable = true;
-            scoreManager.AddScoreHandle(scoreManager.bonus2Score * round, playingPanle.bonusButtonList[1], playingPanle.bonusButtonList[1]);
-            handlescore = false;
-            return;
-        }
-        if (currentComboSroce >= playingPanle.comboSlider.maxValue * 0.2 && !playingPanle.bonusButtonList[0].interactable)
-        {
-            playingPanle.bonusButtonList[0].interactable = true;
-            scoreManager.AddScoreHandle(scoreManager.bonus1Score * round, playingPanle.bonusButtonList[0], playingPanle.bonusButtonList[0]);
-            handlescore = false;
-            return;
+            if (!playingPanle.bonusButtonList[i].interactable)
+            {
+                playingPanle.bonusButtonList[i].interactable = true;
+                switch(i)
+                {
+                    case 0:
+                        scoreManager.AddScoreHandle(scoreManager.bonus1Score * round, playingPanle.bonusButtonList[0], playingPanle.bonusButtonList[0]);
+                        handlescore = false;
+                        break;
+                    case 1:
+                        scoreManager.AddScoreHandle(scoreManager.bonus2Score * round, playingPanle.bonusButtonList[1], playingPanle.bonusButtonList[1]);
+                        handlescore = false;
+                        break;
+                    case 2:
+                        UpdateHope(scoreManager.bonus1Hope);
+                        scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus1Hope, playingPanle.bonusButtonList[2], playingPanle.bonusButtonList[2]);
+                        handlescore = false;
+                        break;
+                    case 3:
+                        UpdateHope(scoreManager.bonus2Hope);
+                        scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus2Hope, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[3]);
+                        handlescore = false;
+                        break;
+                    case 4:
+                        StartCoroutine(MaxComboBonus());
+                        break;
+                }
+            }
         }
     }
     IEnumerator MaxComboBonus()
     {
         inputHandlePanle.SetActive(true);
+        comboScore = 0;
+        currentComboSroce = 0;
 
         scoreManager.ShowScoreAndCountUpScoreAtMidTowPoint(scoreManager.extraScore * round, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[4]);
         yield return new WaitForSeconds(2);
@@ -697,7 +712,7 @@ public class GamePlayManager : MonoBehaviour
             UpdateHope(1);
             audioManager.PlayClearNumberOneShot();
         }
-        comboScore = 0;
+
         inputHandlePanle.SetActive(false);
         handlescore = false;
     }
@@ -717,7 +732,7 @@ public class GamePlayManager : MonoBehaviour
                 ClearGroundHandle();
             }
         }
-        if (addNunbersNumber == 0 && !HasPairNumberCanMatching())
+        if (addNunbersNumber == 0 && !HasPairNumberCanMatching(false))
         {
             Debug.Log("Game over");
         }
@@ -728,14 +743,21 @@ public class GamePlayManager : MonoBehaviour
 
         ResetRound();
 
+        ResetComboScore();
+
         boardManager.StartCoroutineFillNumberWithDifficuiltValue(round);
         boardManager.AwakeClearNumbersBoard();
-
-        playingPanle.comboSlider.maxValue = round * 100;
 
         ResetAddNumbersNumber();
 
         inputHandlePanle.SetActive(false);
+    }
+    void ResetComboScore()
+    {
+        playingPanle.comboSlider.maxValue = round * 100;
+        comboScore = 0;
+        currentComboSroce = 0;
+        playingPanle.comboSlider.value = 0;
     }
     void ResetRound()
     {

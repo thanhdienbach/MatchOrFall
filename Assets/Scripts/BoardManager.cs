@@ -38,7 +38,7 @@ public class BoardManager : MonoBehaviour
     [SerializeField] List<Cell> addNumbers;
     [SerializeField] int maxRowCanShowInBoard = 12; // Todo: Caculate to scale board
     [SerializeField] List<int> randomNumbers = new List<int>();
-    Vector2Int[] directions = new Vector2Int[]
+    public Vector2Int[] directions = new Vector2Int[]
     {
         new Vector2Int (-1 ,-1),
         new Vector2Int (-1 ,0),
