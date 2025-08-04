@@ -67,10 +67,28 @@ public class BoardManager : MonoBehaviour
 
         SetUpLayOutGrid();
         GeneratePlayingBoard();
-        StartCoroutineFillNumberWithDifficuiltValue(100);
+        StartCoroutineFillNumberWithDifficuiltValue(1);
         GenerateClearNumbersBoard();
     }
 
+    public void ResetNewRound()
+    {
+        foreach (var cell in cells)
+        {
+            Destroy(cell.button.gameObject);
+        }
+        cells.Clear();
+
+        GeneratePlayingBoard();
+
+        for (int i = 0; i < gridConfig.maxValueNumber; i++)
+        {
+            playingPanle.clearedNumbers[i].number = i + 1;
+            playingPanle.clearedNumbers[i].button.GetComponent<CanvasGroup>().alpha = 1;
+            playingPanle.countNumber[i + 1] = 0;
+        }
+        StartCoroutineFillNumberWithDifficuiltValue(1);
+    }
 
     void SetUpLayOutGrid()
     {
@@ -83,7 +101,7 @@ public class BoardManager : MonoBehaviour
         playingBoardGridLayoutGroup.spacing = new Vector2(spaceOfCell, spaceOfCell);
 
     }
-    void GeneratePlayingBoard()
+    public void GeneratePlayingBoard()
     {
         int rows;
         if ((startFilledCell / cols) < 12)

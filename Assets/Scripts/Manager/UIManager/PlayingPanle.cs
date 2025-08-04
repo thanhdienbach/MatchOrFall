@@ -82,4 +82,9 @@ public class PlayingPanle : MonoBehaviour
         comboSlider.value = _value;
     }
 
+    public void SetHightScoreText(int _number)
+    {
+        hightScoreText.text = _number.ToString();
+    }
+
 }

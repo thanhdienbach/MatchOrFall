@@ -41,7 +41,7 @@ public class UIManager : MonoBehaviour
 
         inputHandlePanle.SetActive(false);
 
-        gameOverPanle = GetComponentInChildren<GameOverPanle>();
+        gameOverPanle = GetComponentInChildren<GameOverPanle>(true);
         gameOverPanle.gameObject.SetActive(false);
     }
 

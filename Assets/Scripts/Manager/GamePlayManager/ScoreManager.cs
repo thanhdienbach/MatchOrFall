@@ -24,8 +24,6 @@ public class ScoreManager : MonoBehaviour
     public int bonus2Hope = 1;
     public int extraHope = 3;
 
-    [Header("Hight score variable")]
-    [SerializeField] float hightScore;
 
     public void Init()
     {
