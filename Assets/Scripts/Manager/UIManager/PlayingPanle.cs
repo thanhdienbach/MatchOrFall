@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PlayingPanle : MonoBehaviour
 {
+    public CanvasGroup canvasGroup;
 
     public List<Cell> clearedNumbers = new List<Cell>();
     public Dictionary<int, int> countNumber = new Dictionary<int, int>();
@@ -31,7 +32,7 @@ public class PlayingPanle : MonoBehaviour
 
     public void Init()
     {
-        
+        canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void SetScoreText(int _value)

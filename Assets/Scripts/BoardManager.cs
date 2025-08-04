@@ -67,7 +67,7 @@ public class BoardManager : MonoBehaviour
 
         SetUpLayOutGrid();
         GeneratePlayingBoard();
-        StartCoroutineFillNumberWithDifficuiltValue(1);
+        StartCoroutineFillNumberWithDifficuiltValue(100);
         GenerateClearNumbersBoard();
     }
 

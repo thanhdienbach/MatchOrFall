@@ -21,6 +21,7 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] AudioManager audioManager;
     [SerializeField] ScoreManager scoreManager;
     [SerializeField] GameObject inputHandlePanle;
+    [SerializeField] GameOverPanle gameOverPanle;
 
     [Header("Match cell variable")]
     [SerializeField] CellClickHandler firstCell;
@@ -58,15 +59,20 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] float currentComboSroce = 0;
     [SerializeField] float comboScore = 0;
     [SerializeField] float nextTimeStartCountDownComboScore = float.MaxValue;
+    [SerializeField] int countCombo = 0;
 
     [Header("Game state variable")]
     [SerializeField] bool handlescore = false;
 
+    [Header("Highest variable")]
+    [SerializeField] int highestRound = 0;
+    [SerializeField] int highestScore = 10000;
+    [SerializeField] int highestCombo = 0;
     public void Init()
     {
 
         hopeNumber = 100;
-        addNunbersNumber = 5;
+        addNunbersNumber = 1;
         maxSum = GameManager.instance.boardManager.gridConfig.maxValueNumber + 1;
 
         scoreManager = GetComponent<ScoreManager>();
@@ -84,6 +90,7 @@ public class GamePlayManager : MonoBehaviour
         cells = GameManager.instance.boardManager.cells;
         inputHandlePanle = uIManager.inputHandlePanle;
         playingPanle.comboSlider.maxValue = round * 100;
+        gameOverPanle = uIManager.gameOverPanle;
     }
 
     public void OnCellClick(CellClickHandler _clicker)
@@ -235,6 +242,7 @@ public class GamePlayManager : MonoBehaviour
         // Lock input
         inputHandlePanle.SetActive(true);
         handlescore = true;
+        Debug.Log("Handle when matching");
 
         // Handle clear cell
         HandleCell(_cell1, _cell2);
@@ -312,6 +320,7 @@ public class GamePlayManager : MonoBehaviour
         if (currentComboSroce > 1)
         {
             handlescore = true;
+            Debug.Log("Handle when check combo");
             CheckComboBonus();
         }
 
@@ -653,6 +662,7 @@ public class GamePlayManager : MonoBehaviour
     {
         List<int> ints = new List<int>() { 20, 40, 60, 80, 100};
         int point = 0;
+        bool isMaxCombo = false;
 
         for (int i = 0; i < ints.Count; i++)
         {
@@ -672,26 +682,37 @@ public class GamePlayManager : MonoBehaviour
                     case 0:
                         scoreManager.AddScoreHandle(scoreManager.bonus1Score * round, playingPanle.bonusButtonList[0], playingPanle.bonusButtonList[0]);
                         handlescore = false;
+                        Debug.Log("Case 1");
                         break;
                     case 1:
                         scoreManager.AddScoreHandle(scoreManager.bonus2Score * round, playingPanle.bonusButtonList[1], playingPanle.bonusButtonList[1]);
                         handlescore = false;
+                        Debug.Log("Case 2");
                         break;
                     case 2:
                         UpdateHope(scoreManager.bonus1Hope);
                         scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus1Hope, playingPanle.bonusButtonList[2], playingPanle.bonusButtonList[2]);
                         handlescore = false;
+                        Debug.Log("Case 3");
                         break;
                     case 3:
                         UpdateHope(scoreManager.bonus2Hope);
                         scoreManager.ShowScoreAtMidTowPoint(scoreManager.bonus2Hope, playingPanle.bonusButtonList[3], playingPanle.bonusButtonList[3]);
                         handlescore = false;
+                        Debug.Log("Case 4");
                         break;
                     case 4:
+                        isMaxCombo = true;
+                        countCombo++;
                         StartCoroutine(MaxComboBonus());
                         break;
                 }
             }
+        }
+        if (!isMaxCombo)
+        {
+            handlescore = false;
+            Debug.Log("Switch");
         }
     }
     IEnumerator MaxComboBonus()
@@ -714,12 +735,15 @@ public class GamePlayManager : MonoBehaviour
         }
 
         inputHandlePanle.SetActive(false);
+        Debug.Log("Case 5");
         handlescore = false;
     }
     void CheckGameStatus()
     {
         boardManager.nextTimeCanCheckClearRound = boardManager.pendingTime + Time.time;
         handlescore = true;
+        Debug.Log("Handle when check game status");
+
         int countClearNumber = 0;
         for (int i = 0; i < playingPanle.countNumber.Count; i++)
         {
@@ -732,9 +756,10 @@ public class GamePlayManager : MonoBehaviour
                 ClearGroundHandle();
             }
         }
+
         if (addNunbersNumber == 0 && !HasPairNumberCanMatching(false))
         {
-            Debug.Log("Game over");
+            StartCoroutine(OverGameHandle());
         }
     }
     void ClearGroundHandle()
@@ -768,5 +793,56 @@ public class GamePlayManager : MonoBehaviour
     {
         addNunbersNumber += 5 - addNunbersNumber;
         playingPanle.SetAddNumberText(addNunbersNumber,false);
+    }
+    IEnumerator OverGameHandle()
+    {
+        inputHandlePanle.SetActive(true);
+
+        HidePlayingPanle();
+        
+        gameOverPanle.gameObject.SetActive(true);
+        yield return new WaitForSeconds(1);
+
+        gameOverPanle.AnimationScore(gameOverPanle.roundText, round);
+        yield return new WaitForSeconds(0.25f);
+
+        gameOverPanle.AnimationScore(gameOverPanle.scoreText, scoreManager.currentScore);
+        yield return new WaitForSeconds(0.25f);
+
+        gameOverPanle.AnimationScore(gameOverPanle.comboText, countCombo);
+        yield return new WaitForSeconds(0.25f);
+
+        if(round > highestRound)
+        {
+            highestRound = round;
+            gameOverPanle.roundHighestText.text = highestRound.ToString();
+            gameOverPanle.roundMedal.gameObject.SetActive(true);
+        }
+        yield return new WaitForSeconds(0.25f);
+
+        if (scoreManager.currentScore > highestScore)
+        {
+            highestScore = scoreManager.currentScore;
+            gameOverPanle.scoreHighestText.text = highestScore.ToString();
+            gameOverPanle.scoreMedal.gameObject.SetActive(true);
+        }
+        yield return new WaitForSeconds(0.25f);
+
+        if (countCombo > highestCombo)
+        {
+            highestCombo = countCombo;
+            gameOverPanle.comboHighestText.text = highestCombo.ToString();
+            gameOverPanle.comboMedal.gameObject.SetActive(true);
+        }
+        yield return new WaitForSeconds(0.25f);
+
+        gameOverPanle.backButton.gameObject.SetActive(true);
+        gameOverPanle.playAgainButton.gameObject.SetActive(true);
+    }
+    void HidePlayingPanle()
+    {
+        DG.Tweening.Sequence sequene = DOTween.Sequence();
+
+        sequene.Append(playingPanle.canvasGroup.DOFade(0.0f, 1.0f));
     }
 }

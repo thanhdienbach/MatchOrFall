@@ -25,6 +25,7 @@ public class UIManager : MonoBehaviour
     public MyUILineRenderer uILineRenderer1;
     public MyUILineRenderer uILineRenderer2;
     public GameObject inputHandlePanle;
+    public GameOverPanle gameOverPanle;
 
     public void Init()
     {
@@ -39,6 +40,9 @@ public class UIManager : MonoBehaviour
         uILineRenderer2.Init();
 
         inputHandlePanle.SetActive(false);
+
+        gameOverPanle = GetComponentInChildren<GameOverPanle>();
+        gameOverPanle.gameObject.SetActive(false);
     }
 
 }
