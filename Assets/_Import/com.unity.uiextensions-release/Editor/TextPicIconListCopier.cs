@@ -91,8 +91,8 @@ namespace UnityEngine.UI.Extensions
 			}
 			#endif
 		}
-
-		public void OnGUI() {
+#if UNITY_EDITOR
+        public void OnGUI() {
 			GUILayout.Label("TextPic to copy icons", EditorStyles.boldLabel);
 			EditorGUILayout.Separator();
 			GUILayout.Label("TextPic", EditorStyles.boldLabel);
@@ -135,6 +135,7 @@ namespace UnityEngine.UI.Extensions
 				GUILayout.Label("Please select objects that have a TextPic component", EditorStyles.boldLabel);
 			}
 		}
+#endif
 	}
 
 }

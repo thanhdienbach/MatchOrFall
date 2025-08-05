@@ -6,7 +6,9 @@ using UnityEngine.UI;
 using System;
 using Unity.VisualScripting;
 using TMPro;
-using static UnityEditor.PlayerSettings;
+//#if UNITY_EDITOR
+//using static UnityEditor.PlayerSettings;
+//#endif
 using DG.Tweening;
 
 public class GamePlayManager : MonoBehaviour

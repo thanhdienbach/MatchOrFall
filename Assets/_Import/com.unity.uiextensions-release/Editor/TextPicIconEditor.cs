@@ -68,8 +68,8 @@ namespace UnityEngine.UI.Extensions
 			}
 			#endif
 		}
-
-		public void OnGUI() {
+#if UNITY_EDITOR
+        public void OnGUI() {
 			GUILayout.Label("Select a GameObject to edit TextPic icons", EditorStyles.boldLabel);
 			EditorGUILayout.Separator();
 			GUILayout.Label("GameObject", EditorStyles.boldLabel);
@@ -125,6 +125,7 @@ namespace UnityEngine.UI.Extensions
 				EditorGUILayout.Separator();
 			}
 		}
+#endif
 	}
 
 }

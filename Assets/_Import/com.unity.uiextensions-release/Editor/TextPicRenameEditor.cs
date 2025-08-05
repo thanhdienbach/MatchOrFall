@@ -80,8 +80,8 @@ namespace UnityEngine.UI.Extensions
 			}
 			#endif
 		}
-
-		public void OnGUI() {
+#if UNITY_EDITOR
+        public void OnGUI() {
 			GUILayout.Label("Select a GameObject to rename TextPic icons and text", EditorStyles.boldLabel);
 			EditorGUILayout.Separator();
 			GUILayout.Label("GameObject", EditorStyles.boldLabel);
@@ -146,9 +146,8 @@ namespace UnityEngine.UI.Extensions
 
 				EditorGUILayout.BeginHorizontal();
 				if (GUILayout.Button("Rename Icons and Text")) {
-					#if UNITY_EDITOR
+
 					Rename(o);
-					#endif
 				}
 
 				EditorGUILayout.EndHorizontal();
@@ -156,6 +155,7 @@ namespace UnityEngine.UI.Extensions
 				EditorGUILayout.Separator();
 			}
 		}
+#endif
 	}
 
 }

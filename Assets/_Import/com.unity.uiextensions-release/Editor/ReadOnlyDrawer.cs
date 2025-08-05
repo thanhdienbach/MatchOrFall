@@ -1,8 +1,8 @@
-﻿/// Credit tanoshimi
+﻿#if UNITY_EDITOR
+/// Credit tanoshimi
 /// Sourced from - https://forum.unity3d.com/threads/read-only-fields.68976/
 /// 
 using UnityEditor;
-
 namespace UnityEngine.UI.Extensions
 { 
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
@@ -15,5 +15,7 @@ namespace UnityEngine.UI.Extensions
             EditorGUI.PropertyField(position, property, label, true);
             GUI.enabled = true;
         }
+
     }
 }
+#endif

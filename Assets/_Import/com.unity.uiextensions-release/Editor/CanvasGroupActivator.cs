@@ -36,6 +36,7 @@ namespace UnityEngine.UI.Extensions
 #endif            
         }
 
+#if UNITY_EDITOR
         void OnGUI()
         {
             if (canvasGroups == null)
@@ -90,7 +91,7 @@ namespace UnityEngine.UI.Extensions
                 HideAllGroups();
             }
         }
-
+#endif 
         void ShowAllGroups()
         {
             foreach (var group in canvasGroups)
